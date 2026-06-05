@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>ConnectHub</title>
+  <style>
+    body { font-family: sans-serif; max-width: 480px; margin: 2rem auto; }
+    #lista { list-style: none; padding: 0; }
+    #lista li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    .info { display: flex; flex-direction: column; }
+    .categoria { font-size: 0.75rem; color: #888; }
+    .estrela {
+      font-size: 1.5rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      line-height: 1;
+    }
+    .estrela.favoritado { color: gold; }
+    .estrela.favoritado::before { content: "★"; }
+    .estrela:not(.favoritado) { color: #ccc; }
+    .estrela:not(.favoritado)::before { content: "☆"; }
+
+    #formulario {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fafafa;
+    }
+    #formulario input, #formulario select {
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    #formulario button {
+      padding: 0.6rem;
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    #formulario button:hover { background: #357abd; }
+    #erro {
+      color: #c0392b;
+      font-size: 0.9rem;
+      min-height: 1.2rem;
+    }
+    #tabela-campos {
+      margin-top: 1.5rem;
+      width: 100%;
+      border-collapse: collapse;
+    }
+    #tabela-campos th, #tabela-campos td {
+      border: 1px solid #ddd;
+      padding: 0.4rem 0.75rem;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    #tabela-campos th { background: #f0f0f0; }
+    .controles {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .controles button {
+      padding: 0.4rem 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .controles button:hover { background: #f0f0f0; }
+    #btn-readonly.ativo { background: #ffe0e0; border-color: #c0392b; color: #c0392b; }
+  </style>
+</head>
+<body>
+  <h1>📋 ConnectHub</h1>
+
+  <form id="formulario">
+    <input id="inp-nome" type="text" placeholder="Nome *" required />
+    <input id="inp-telefone" type="text" placeholder="Telefone *" required />
+    <input id="inp-email" type="email" placeholder="Email (opcional)" />
+    <select id="inp-categoria">
+      <option value="amigo">Amigo</option>
+      <option value="trabalho">Trabalho</option>
+      <option value="familia">Família</option>
+      <option value="outro">Outro</option>
+    </select>
+    <div id="erro"></div>
+    <button type="submit">Adicionar contato</button>
+  </form>
+
+  <div class="controles">
+    <button id="btn-nomes">Exibir todos os nomes</button>
+    <button id="btn-telefones">Exibir todos os telefones</button>
+    <button id="btn-readonly">Modo somente leitura</button>
+  </div>
+
+  <ul id="lista"></ul>
+
+  <table id="tabela-campos" style="display:none;">
+    <thead><tr><th id="tabela-cabecalho"></th></tr></thead>
+    <tbody id="tabela-corpo"></tbody>
+  </table>
+
+  <script src="contatos.js"></script>
+</body>
+</html>
