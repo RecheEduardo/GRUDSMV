@@ -1,22 +1,16 @@
 {
-  "name": "grudsmv",
+  "name": "grudsmv-aula01",
   "version": "1.0.0",
-  "description": "",
+  "description": "Exercícios de TypeScript - Aula 01",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "check": "tsc --noEmit",
+    "build": "tsc"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
+  "keywords": ["typescript", "exercises"],
+  "author": "Eduardo Reche",
+  "license": "MIT",
   "devDependencies": {
-    "@types/node": "^25.9.1",
-    "@types/node-fetch": "^2.6.13",
-    "ts-node": "^10.9.2",
-    "typescript": "^6.0.3"
-  },
-  "dependencies": {
-    "node-fetch": "^3.3.2"
+    "typescript": "^5.3.3"
   }
 }
