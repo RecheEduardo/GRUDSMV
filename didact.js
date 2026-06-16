@@ -257,7 +257,60 @@ function updateHostComponent(fiber) {
   reconcileChildren(fiber, fiber.props.children)
 }
 
-// Placeholder — implemented in Mission 4
-function updateFunctionComponent() {}
+// ============================================================
+// Mission 4: Function Components and useState
+// ============================================================
 
-const Didact = { createElement, render }
+let wipFiber = null   // the function-component fiber currently being rendered
+let hookIndex = null  // cursor into wipFiber.hooks[], advances with each useState call
+
+// Function components don't produce a DOM node — their children come from
+// calling the function. We set the global cursor before calling so that
+// useState can find its slot without receiving an explicit ID.
+function updateFunctionComponent(fiber) {
+  wipFiber = fiber
+  hookIndex = 0
+  wipFiber.hooks = []                          // fresh array for this render
+  const children = [fiber.type(fiber.props)]  // call the component function
+  reconcileChildren(fiber, children)
+}
+
+// useState stores state inside the fiber's hooks array, indexed by call order.
+// Updates are batched in a queue and applied at the start of the next render.
+function useState(initial) {
+  // Recover the hook from the previous render, if any
+  const oldHook =
+    wipFiber.alternate &&
+    wipFiber.alternate.hooks &&
+    wipFiber.alternate.hooks[hookIndex]
+
+  const hook = {
+    state: oldHook ? oldHook.state : initial, // carry forward previous state
+    queue: [],                                 // actions scheduled via setState
+  }
+
+  // Apply all batched actions to compute the new state value
+  const actions = oldHook ? oldHook.queue : []
+  actions.forEach(action => {
+    hook.state = typeof action === "function" ? action(hook.state) : action
+  })
+
+  // setState enqueues the action and schedules a re-render
+  const setState = action => {
+    hook.queue.push(action)
+    // Point wipRoot at the current tree so the Work Loop restarts from there
+    wipRoot = {
+      dom: currentRoot.dom,
+      props: currentRoot.props,
+      alternate: currentRoot,
+    }
+    deletions = []
+    nextUnitOfWork = wipRoot
+  }
+
+  wipFiber.hooks.push(hook)
+  hookIndex++
+  return [hook.state, setState]
+}
+
+const Didact = { createElement, render, useState }
