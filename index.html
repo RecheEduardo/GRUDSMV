@@ -2,11 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Didact - My own React</title>
+  <title>Didact - Mission 5</title>
 </head>
 <body>
   <div id="root"></div>
 
+  <!-- 1. Load Babel so the browser can understand JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- 2. Load the Didact library (plain JS, no JSX here) -->
   <script src="didact.js"></script>
+  <!-- 3. The app component file — Babel intercepts and transpiles this -->
+  <script type="text/babel" src="app.js"></script>
 </body>
 </html>
