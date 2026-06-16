@@ -27,13 +27,184 @@ function createTextElement(text) {
 }
 
 // ============================================================
+// Mission 3: Render and Commit Phases & Reconciliation
+// ============================================================
+
+// --- 3.1 Commit Phase ---
+
+let wipRoot = null      // the fiber tree being built right now
+let currentRoot = null  // the fiber tree currently reflected in the DOM
+let deletions = null    // fibers scheduled for removal from the DOM
+
+// Replaces Mission 1's naive render: instead of touching the DOM immediately,
+// we build a work-in-progress tree and let the Work Loop process it.
+function render(element, container) {
+  // Create the root fiber of the new work-in-progress tree.
+  // 'alternate' links it to the current tree so the reconciler can diff them.
+  wipRoot = {
+    dom: container,
+    props: { children: [element] },
+    alternate: currentRoot,
+  }
+  deletions = []          // reset the deletion list for this render cycle
+  nextUnitOfWork = wipRoot // wake up the Work Loop
+}
+
+// Called once the entire fiber tree has been processed (nextUnitOfWork is null).
+// This is the only moment we touch the real DOM — atomically.
+function commitRoot() {
+  deletions.forEach(commitWork)  // remove obsolete nodes first
+  commitWork(wipRoot.child)      // recursively apply PLACEMENT and UPDATE
+  currentRoot = wipRoot          // the work-in-progress tree is now the current tree
+  wipRoot = null
+}
+
+// Applies one fiber's effectTag to the real DOM, then recurses into children and siblings.
+function commitWork(fiber) {
+  if (!fiber) return
+
+  // Function components don't own a DOM node, so walk up until we find one.
+  let domParentFiber = fiber.parent
+  while (!domParentFiber.dom) {
+    domParentFiber = domParentFiber.parent
+  }
+  const domParent = domParentFiber.dom
+
+  if (fiber.effectTag === "PLACEMENT" && fiber.dom != null) {
+    // New node — insert it into the parent
+    domParent.appendChild(fiber.dom)
+  } else if (fiber.effectTag === "UPDATE" && fiber.dom != null) {
+    // Existing node — patch only what changed
+    updateDom(fiber.dom, fiber.alternate.props, fiber.props)
+  } else if (fiber.effectTag === "DELETION") {
+    // Obsolete node — remove it (may need to find the real DOM node deeper in)
+    commitDeletion(fiber, domParent)
+  }
+
+  commitWork(fiber.child)
+  commitWork(fiber.sibling)
+}
+
+// Removes a fiber from the DOM. If the fiber has no DOM node (function component),
+// keep descending until we reach one that does.
+function commitDeletion(fiber, domParent) {
+  if (fiber.dom) {
+    domParent.removeChild(fiber.dom)
+  } else {
+    commitDeletion(fiber.child, domParent)
+  }
+}
+
+// --- 3.2 updateDom ---
+
+const isEvent     = key => key.startsWith("on")
+const isProperty  = key => key !== "children" && !isEvent(key)
+const isNew       = (prev, next) => key => prev[key] !== next[key]
+const isGone      = (prev, next) => key => !(key in next)
+
+// Patches a real DOM node by diffing prevProps against nextProps.
+function updateDom(dom, prevProps, nextProps) {
+  // 1. Remove event listeners that changed or disappeared
+  Object.keys(prevProps)
+    .filter(isEvent)
+    .filter(key => isGone(prevProps, nextProps)(key) || isNew(prevProps, nextProps)(key))
+    .forEach(name => {
+      const eventType = name.toLowerCase().substring(2)
+      dom.removeEventListener(eventType, prevProps[name])
+    })
+
+  // 2. Remove regular props that no longer exist
+  Object.keys(prevProps)
+    .filter(isProperty)
+    .filter(isGone(prevProps, nextProps))
+    .forEach(name => {
+      dom[name] = ""
+    })
+
+  // 3. Set new or changed regular props
+  Object.keys(nextProps)
+    .filter(isProperty)
+    .filter(isNew(prevProps, nextProps))
+    .forEach(name => {
+      dom[name] = nextProps[name]
+    })
+
+  // 4. Add new or changed event listeners
+  Object.keys(nextProps)
+    .filter(isEvent)
+    .filter(isNew(prevProps, nextProps))
+    .forEach(name => {
+      const eventType = name.toLowerCase().substring(2)
+      dom.addEventListener(eventType, nextProps[name])
+    })
+}
+
+// --- 3.3 reconcileChildren ---
+
+// Diffs the new elements against the previous fiber children and assigns effectTags,
+// maximising DOM node reuse (UPDATE) and scheduling removals (DELETION).
+function reconcileChildren(wipFiber, elements) {
+  let index = 0
+  let oldFiber = wipFiber.alternate && wipFiber.alternate.child
+  let prevSibling = null
+
+  while (index < elements.length || oldFiber != null) {
+    const element = elements[index]
+    let newFiber = null
+
+    const sameType = oldFiber && element && element.type == oldFiber.type
+
+    // Case 1: same type → recycle the existing DOM node (UPDATE)
+    if (sameType) {
+      newFiber = {
+        type: oldFiber.type,
+        props: element.props,
+        dom: oldFiber.dom,       // reuse the real DOM node
+        parent: wipFiber,
+        alternate: oldFiber,
+        effectTag: "UPDATE",
+      }
+    }
+
+    // Case 2: new element with different (or no) old fiber → create from scratch (PLACEMENT)
+    if (element && !sameType) {
+      newFiber = {
+        type: element.type,
+        props: element.props,
+        dom: null,               // DOM node will be created in updateHostComponent
+        parent: wipFiber,
+        alternate: null,
+        effectTag: "PLACEMENT",
+      }
+    }
+
+    // Case 3: old fiber exists but type changed → schedule its removal (DELETION)
+    if (oldFiber && !sameType) {
+      oldFiber.effectTag = "DELETION"
+      deletions.push(oldFiber)
+    }
+
+    if (oldFiber) {
+      oldFiber = oldFiber.sibling
+    }
+
+    if (index === 0) {
+      wipFiber.child = newFiber
+    } else if (element) {
+      prevSibling.sibling = newFiber
+    }
+
+    prevSibling = newFiber
+    index++
+  }
+}
+
+// ============================================================
 // Mission 2: Concurrent Mode and the Fiber Tree
 // ============================================================
 
 let nextUnitOfWork = null
 
-// Breaks rendering into small chunks using idle time,
-// yielding to the browser whenever the deadline runs out.
 function workLoop(deadline) {
   let shouldYield = false
   while (nextUnitOfWork && !shouldYield) {
@@ -47,7 +218,6 @@ function workLoop(deadline) {
 }
 requestIdleCallback(workLoop)
 
-// Creates the actual DOM node for a fiber (no children yet).
 function createDom(fiber) {
   const dom =
     fiber.type === "TEXT_ELEMENT"
@@ -57,8 +227,6 @@ function createDom(fiber) {
   return dom
 }
 
-// Processes one fiber and returns the next unit of work.
-// Traversal order: child → sibling → parent's sibling (uncle).
 function performUnitOfWork(fiber) {
   const isFunctionComponent = fiber.type instanceof Function
   if (isFunctionComponent) {
@@ -67,12 +235,10 @@ function performUnitOfWork(fiber) {
     updateHostComponent(fiber)
   }
 
-  // 1. Go deeper if there is a child
   if (fiber.child) {
     return fiber.child
   }
 
-  // 2. No child — try sibling, then walk up looking for an uncle
   let nextFiber = fiber
   while (nextFiber) {
     if (nextFiber.sibling) {
@@ -81,7 +247,6 @@ function performUnitOfWork(fiber) {
     nextFiber = nextFiber.parent
   }
 
-  // 3. Reached the root with no more work
   return undefined
 }
 
@@ -92,27 +257,7 @@ function updateHostComponent(fiber) {
   reconcileChildren(fiber, fiber.props.children)
 }
 
-// ============================================================
-// Placeholders for Missions 3 & 4 (needed by workLoop / createDom)
-// ============================================================
-
-let wipRoot = null
-let currentRoot = null
-let deletions = null
-
-function render(element, container) {
-  wipRoot = {
-    dom: container,
-    props: { children: [element] },
-    alternate: currentRoot,
-  }
-  deletions = []
-  nextUnitOfWork = wipRoot
-}
-
-function commitRoot() { /* implemented in Mission 3 */ }
-function updateDom() { /* implemented in Mission 3 */ }
-function reconcileChildren() { /* implemented in Mission 3 */ }
-function updateFunctionComponent() { /* implemented in Mission 4 */ }
+// Placeholder — implemented in Mission 4
+function updateFunctionComponent() {}
 
 const Didact = { createElement, render }
