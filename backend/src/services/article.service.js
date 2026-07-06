@@ -48,4 +48,34 @@ function submitForReview(articleId, userId) {
   return changeStatus(article, ARTICLE_STATUS.REVIEW);
 }
 
-module.exports = { create, listByAuthor, changeStatus, submitForReview };
+// Lista os artigos aguardando moderacao (status REVIEW), do mais antigo para o
+// mais recente (fila de moderacao). Uso restrito ao ADMIN (checado na rota).
+function listForReview() {
+  return articleRepository
+    .findByStatus(ARTICLE_STATUS.REVIEW)
+    .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+}
+
+// Aprova um artigo em revisao (REVIEW -> PUBLISHED). Uso restrito ao ADMIN.
+function approve(articleId) {
+  const article = articleRepository.findById(articleId);
+  if (!article) throw httpError(404, 'Artigo nao encontrado');
+  return changeStatus(article, ARTICLE_STATUS.PUBLISHED);
+}
+
+// Rejeita um artigo em revisao (REVIEW -> REJECTED). Uso restrito ao ADMIN.
+function reject(articleId) {
+  const article = articleRepository.findById(articleId);
+  if (!article) throw httpError(404, 'Artigo nao encontrado');
+  return changeStatus(article, ARTICLE_STATUS.REJECTED);
+}
+
+module.exports = {
+  create,
+  listByAuthor,
+  changeStatus,
+  submitForReview,
+  listForReview,
+  approve,
+  reject,
+};

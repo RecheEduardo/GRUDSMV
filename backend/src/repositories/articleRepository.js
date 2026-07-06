@@ -7,4 +7,8 @@ function findByAuthor(authorId) {
   return repo.findBy((article) => article.authorId === authorId);
 }
 
-module.exports = { ...repo, findByAuthor };
+function findByStatus(status) {
+  return repo.findBy((article) => article.status === status);
+}
+
+module.exports = { ...repo, findByAuthor, findByStatus };

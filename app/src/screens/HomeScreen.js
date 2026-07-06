@@ -12,7 +12,7 @@ import api from '../services/api';
 
 // Tela inicial (logado). Sauda o usuario e mantem o health-check do backend.
 export default function HomeScreen({ navigation }) {
-  const { user, logout } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
   const [status, setStatus] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -42,6 +42,15 @@ export default function HomeScreen({ navigation }) {
           onPress={() => navigation.navigate('MyArticles')}
         />
       </View>
+
+      {isAdmin && (
+        <View style={styles.action}>
+          <Button
+            title="Moderacao"
+            onPress={() => navigation.navigate('Moderation')}
+          />
+        </View>
+      )}
 
       <View style={styles.action}>
         <Button title="Verificar backend (/health)" onPress={checkHealth} />

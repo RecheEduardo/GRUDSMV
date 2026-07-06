@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import CreateArticleScreen from '../screens/CreateArticleScreen';
 import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/LoginScreen';
+import ModerationScreen from '../screens/ModerationScreen';
 import MyArticlesScreen from '../screens/MyArticlesScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 
@@ -13,7 +14,7 @@ import RegisterScreen from '../screens/RegisterScreen';
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
-  const { user, initializing } = useAuth();
+  const { user, isAdmin, initializing } = useAuth();
 
   // Enquanto restaura a sessao do dispositivo, mostra um loading.
   if (initializing) {
@@ -43,6 +44,13 @@ export default function AppNavigator() {
             component={CreateArticleScreen}
             options={{ title: 'Novo Artigo' }}
           />
+          {isAdmin && (
+            <Stack.Screen
+              name="Moderation"
+              component={ModerationScreen}
+              options={{ title: 'Moderacao' }}
+            />
+          )}
         </>
       ) : (
         <>

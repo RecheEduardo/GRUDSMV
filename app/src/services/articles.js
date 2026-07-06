@@ -15,3 +15,21 @@ export async function submitArticle(id) {
   const { data } = await api.patch(`/articles/${id}/submit`);
   return data.article;
 }
+
+// Moderacao (ADMIN): fila de artigos em revisao.
+export async function getReviewArticles() {
+  const { data } = await api.get('/admin/articles/review');
+  return data.articles;
+}
+
+// Moderacao (ADMIN): aprova um artigo (REVIEW -> PUBLISHED).
+export async function approveArticle(id) {
+  const { data } = await api.patch(`/articles/${id}/approve`);
+  return data.article;
+}
+
+// Moderacao (ADMIN): rejeita um artigo (REVIEW -> REJECTED).
+export async function rejectArticle(id) {
+  const { data } = await api.patch(`/articles/${id}/reject`);
+  return data.article;
+}

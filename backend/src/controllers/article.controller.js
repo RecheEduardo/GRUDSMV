@@ -27,4 +27,24 @@ async function submit(req, res, next) {
   }
 }
 
-module.exports = { create, listMine, submit };
+// Moderacao (ADMIN): aprova um artigo em revisao (REVIEW -> PUBLISHED).
+async function approve(req, res, next) {
+  try {
+    const article = articleService.approve(req.params.id);
+    res.status(200).json({ article });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Moderacao (ADMIN): rejeita um artigo em revisao (REVIEW -> REJECTED).
+async function reject(req, res, next) {
+  try {
+    const article = articleService.reject(req.params.id);
+    res.status(200).json({ article });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { create, listMine, submit, approve, reject };
