@@ -6,9 +6,12 @@ const {
   submit,
   approve,
   reject,
+  update,
+  remove,
 } = require('../controllers/article.controller');
 const auth = require('../middlewares/auth');
 const role = require('../middlewares/role');
+const { articleOwnership } = require('../middlewares/ownership');
 
 const router = Router();
 
@@ -26,5 +29,11 @@ router.patch('/:id/approve', auth, role('ADMIN'), approve);
 
 // PATCH /articles/:id/reject -> rejeita (REVIEW -> REJECTED). Somente ADMIN.
 router.patch('/:id/reject', auth, role('ADMIN'), reject);
+
+// PUT /articles/:id -> edita o proprio artigo (somente DRAFT/REVIEW).
+router.put('/:id', auth, articleOwnership, update);
+
+// DELETE /articles/:id -> exclui o proprio artigo (somente DRAFT/REVIEW).
+router.delete('/:id', auth, articleOwnership, remove);
 
 module.exports = router;

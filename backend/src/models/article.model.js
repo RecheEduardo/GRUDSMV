@@ -22,4 +22,18 @@ function canTransition(from, to) {
   return (STATUS_TRANSITIONS[from] || []).includes(to);
 }
 
-module.exports = { ARTICLE_STATUS, STATUS_TRANSITIONS, canTransition };
+// Status em que o autor ainda pode editar ou excluir o proprio artigo,
+// isto e, antes de ele ser publicado ou rejeitado.
+const EDITABLE_STATUSES = [ARTICLE_STATUS.DRAFT, ARTICLE_STATUS.REVIEW];
+
+function isEditable(status) {
+  return EDITABLE_STATUSES.includes(status);
+}
+
+module.exports = {
+  ARTICLE_STATUS,
+  STATUS_TRANSITIONS,
+  canTransition,
+  EDITABLE_STATUSES,
+  isEditable,
+};

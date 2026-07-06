@@ -1,5 +1,9 @@
 const articleRepository = require('../repositories/articleRepository');
-const { ARTICLE_STATUS, canTransition } = require('../models/article.model');
+const {
+  ARTICLE_STATUS,
+  canTransition,
+  isEditable,
+} = require('../models/article.model');
 const httpError = require('../utils/httpError');
 
 // Cria um artigo em rascunho (DRAFT) para o autor informado.
@@ -70,6 +74,37 @@ function reject(articleId) {
   return changeStatus(article, ARTICLE_STATUS.REJECTED);
 }
 
+// Garante que o artigo ainda esta em um status editavel (DRAFT ou REVIEW).
+function assertEditable(article) {
+  if (!isEditable(article.status)) {
+    throw httpError(
+      409,
+      'Apenas artigos em rascunho ou revisao podem ser editados ou excluidos',
+    );
+  }
+}
+
+// Atualiza um artigo ja validado como do proprio autor (via middleware
+// ownership). So permite edicao enquanto o artigo esta em DRAFT ou REVIEW.
+function updateOwn(article, { title, content, tags }) {
+  assertEditable(article);
+  if (!title || !title.trim() || !content || !content.trim()) {
+    throw httpError(400, 'titulo e conteudo sao obrigatorios');
+  }
+  return articleRepository.update(article.id, {
+    title: title.trim(),
+    content: content.trim(),
+    tags: Array.isArray(tags) ? tags : article.tags || [],
+  });
+}
+
+// Exclui um artigo ja validado como do proprio autor (via middleware
+// ownership). So permite exclusao enquanto o artigo esta em DRAFT ou REVIEW.
+function removeOwn(article) {
+  assertEditable(article);
+  return articleRepository.remove(article.id);
+}
+
 module.exports = {
   create,
   listByAuthor,
@@ -78,4 +113,6 @@ module.exports = {
   listForReview,
   approve,
   reject,
+  updateOwn,
+  removeOwn,
 };

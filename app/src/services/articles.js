@@ -11,6 +11,15 @@ export async function getMyArticles() {
   return data.articles;
 }
 
+export async function updateArticle(id, { title, content, tags }) {
+  const { data } = await api.put(`/articles/${id}`, { title, content, tags });
+  return data.article;
+}
+
+export async function deleteArticle(id) {
+  await api.delete(`/articles/${id}`);
+}
+
 export async function submitArticle(id) {
   const { data } = await api.patch(`/articles/${id}/submit`);
   return data.article;

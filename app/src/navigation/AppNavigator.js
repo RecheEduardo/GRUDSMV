@@ -42,7 +42,9 @@ export default function AppNavigator() {
           <Stack.Screen
             name="CreateArticle"
             component={CreateArticleScreen}
-            options={{ title: 'Novo Artigo' }}
+            options={({ route }) => ({
+              title: route.params?.article ? 'Editar Artigo' : 'Novo Artigo',
+            })}
           />
           {isAdmin && (
             <Stack.Screen

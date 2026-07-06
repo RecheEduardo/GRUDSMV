@@ -9,12 +9,16 @@ import {
   View,
 } from 'react-native';
 
-import { createArticle } from '../services/articles';
+import { createArticle, updateArticle } from '../services/articles';
 
-export default function CreateArticleScreen({ navigation }) {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [tags, setTags] = useState('');
+// Formulario de artigo reaproveitado para criar e editar.
+// Modo edicao quando route.params.article esta presente.
+export default function CreateArticleScreen({ navigation, route }) {
+  const editing = route.params?.article ?? null;
+
+  const [title, setTitle] = useState(editing?.title ?? '');
+  const [content, setContent] = useState(editing?.content ?? '');
+  const [tags, setTags] = useState((editing?.tags ?? []).join(', '));
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -26,11 +30,16 @@ export default function CreateArticleScreen({ navigation }) {
         .split(',')
         .map((t) => t.trim())
         .filter(Boolean);
-      await createArticle({
+      const payload = {
         title: title.trim(),
         content: content.trim(),
         tags: parsedTags,
-      });
+      };
+      if (editing) {
+        await updateArticle(editing.id, payload);
+      } else {
+        await createArticle(payload);
+      }
       // Volta para a lista, que recarrega ao ganhar foco.
       navigation.goBack();
     } catch (err) {
@@ -75,7 +84,10 @@ export default function CreateArticleScreen({ navigation }) {
         {loading ? (
           <ActivityIndicator />
         ) : (
-          <Button title="Salvar rascunho" onPress={handleSave} />
+          <Button
+            title={editing ? 'Salvar alteracoes' : 'Salvar rascunho'}
+            onPress={handleSave}
+          />
         )}
       </View>
     </ScrollView>

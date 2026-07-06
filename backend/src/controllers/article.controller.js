@@ -47,4 +47,24 @@ async function reject(req, res, next) {
   }
 }
 
-module.exports = { create, listMine, submit, approve, reject };
+// Edita um artigo proprio (req.article vem do middleware ownership).
+async function update(req, res, next) {
+  try {
+    const article = articleService.updateOwn(req.article, req.body);
+    res.status(200).json({ article });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Exclui um artigo proprio (req.article vem do middleware ownership).
+async function remove(req, res, next) {
+  try {
+    articleService.removeOwn(req.article);
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { create, listMine, submit, approve, reject, update, remove };

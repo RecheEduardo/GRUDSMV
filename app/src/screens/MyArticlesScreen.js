@@ -12,12 +12,16 @@ import {
 
 import StatusBadge from '../components/StatusBadge';
 import { useArticleStatus } from '../hooks/useArticleStatus';
-import { getMyArticles } from '../services/articles';
+import { deleteArticle, getMyArticles } from '../services/articles';
+
+// Status em que o autor ainda pode editar/excluir o proprio artigo.
+const EDITABLE_STATUSES = ['DRAFT', 'REVIEW'];
 
 export default function MyArticlesScreen({ navigation }) {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
   const { submitForReview, submittingId } = useArticleStatus();
 
   async function handleSubmit(article) {
@@ -34,6 +38,39 @@ export default function MyArticlesScreen({ navigation }) {
         err.response?.data?.message || 'Nao foi possivel enviar para revisao.',
       );
     }
+  }
+
+  function handleEdit(article) {
+    navigation.navigate('CreateArticle', { article });
+  }
+
+  function handleDelete(article) {
+    Alert.alert(
+      'Excluir artigo',
+      `Deseja excluir "${article.title}"? Esta acao nao pode ser desfeita.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: async () => {
+            setDeletingId(article.id);
+            try {
+              await deleteArticle(article.id);
+              setArticles((prev) => prev.filter((a) => a.id !== article.id));
+            } catch (err) {
+              Alert.alert(
+                'Erro',
+                err.response?.data?.message ||
+                  'Nao foi possivel excluir o artigo.',
+              );
+            } finally {
+              setDeletingId(null);
+            }
+          },
+        },
+      ],
+    );
   }
 
   const load = useCallback(async () => {
@@ -57,6 +94,8 @@ export default function MyArticlesScreen({ navigation }) {
 
   function renderItem({ item }) {
     const isSubmitting = submittingId === item.id;
+    const isDeleting = deletingId === item.id;
+    const editable = EDITABLE_STATUSES.includes(item.status);
     return (
       <View style={styles.card}>
         <Text style={styles.cardTitle}>{item.title}</Text>
@@ -75,6 +114,24 @@ export default function MyArticlesScreen({ navigation }) {
               />
             ))}
         </View>
+
+        {editable && (
+          <View style={styles.cardActions}>
+            {isDeleting ? (
+              <ActivityIndicator />
+            ) : (
+              <>
+                <Button title="Editar" onPress={() => handleEdit(item)} />
+                <View style={styles.spacer} />
+                <Button
+                  title="Excluir"
+                  color="#c5221f"
+                  onPress={() => handleDelete(item)}
+                />
+              </>
+            )}
+          </View>
+        )}
       </View>
     );
   }
@@ -146,6 +203,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  cardActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginTop: 12,
+  },
+  spacer: {
+    width: 8,
   },
   centered: {
     marginTop: 40,
