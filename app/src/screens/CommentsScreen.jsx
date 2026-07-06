@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Button,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -13,11 +12,14 @@ import {
   View,
 } from 'react-native';
 
+import AppButton from '../components/AppButton';
+import Card from '../components/Card';
 import LikeButton from '../components/LikeButton';
 import ReportButton from '../components/ReportButton';
 import { useAuth } from '../context/AuthContext';
 import { useComments } from '../hooks/useComments';
 import { useNotifications } from '../hooks/useNotifications';
+import { colors, radius, spacing } from '../theme';
 
 // Tela de comentarios de um artigo publicado. Lista os comentarios (paginado),
 // permite comentar e excluir apenas os proprios.
@@ -81,9 +83,16 @@ export default function CommentsScreen({ route }) {
   function renderItem({ item }) {
     const isMine = item.authorId === user?.id;
     return (
-      <View style={styles.comment}>
+      <Card style={styles.comment}>
         <View style={styles.commentHeader}>
-          <Text style={styles.author}>{item.authorUsername || 'Usuario'}</Text>
+          <View style={styles.authorRow}>
+            <View style={styles.authorAvatar}>
+              <Text style={styles.authorAvatarText}>
+                {(item.authorUsername || 'U')[0].toUpperCase()}
+              </Text>
+            </View>
+            <Text style={styles.author}>{item.authorUsername || 'Usuario'}</Text>
+          </View>
           {isMine && (
             <Pressable onPress={() => handleDelete(item.id)} hitSlop={8}>
               <Text style={styles.delete}>Excluir</Text>
@@ -95,7 +104,7 @@ export default function CommentsScreen({ route }) {
           <LikeButton entity={item} type="comment" />
           <ReportButton entity={item} type="comment" />
         </View>
-      </View>
+      </Card>
     );
   }
 
@@ -105,7 +114,7 @@ export default function CommentsScreen({ route }) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       {loading ? (
-        <ActivityIndicator style={styles.centered} size="large" />
+        <ActivityIndicator style={styles.centered} size="large" color={colors.primary} />
       ) : (
         <FlatList
           data={comments}
@@ -117,12 +126,17 @@ export default function CommentsScreen({ route }) {
           onEndReachedThreshold={0.3}
           onEndReached={loadMore}
           ListEmptyComponent={
-            <Text style={styles.empty}>
-              Nenhum comentario ainda. Seja o primeiro!
-            </Text>
+            <View style={styles.emptyWrap}>
+              <Text style={styles.emptyIcon}>💬</Text>
+              <Text style={styles.empty}>
+                Nenhum comentario ainda. Seja o primeiro!
+              </Text>
+            </View>
           }
           ListFooterComponent={
-            loadingMore ? <ActivityIndicator style={styles.footer} /> : null
+            loadingMore ? (
+              <ActivityIndicator style={styles.footer} color={colors.primary} />
+            ) : null
           }
         />
       )}
@@ -131,16 +145,19 @@ export default function CommentsScreen({ route }) {
         <TextInput
           style={styles.input}
           placeholder="Escreva um comentario..."
+          placeholderTextColor={colors.textFaint}
           value={text}
           onChangeText={setText}
           multiline
           editable={!submitting}
         />
-        {submitting ? (
-          <ActivityIndicator style={styles.sendLoading} />
-        ) : (
-          <Button title="Enviar" onPress={handleAdd} disabled={!text.trim()} />
-        )}
+        <AppButton
+          title="Enviar"
+          size="sm"
+          onPress={handleAdd}
+          loading={submitting}
+          disabled={!text.trim()}
+        />
       </View>
     </KeyboardAvoidingView>
   );
@@ -149,78 +166,100 @@ export default function CommentsScreen({ route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
   },
   list: {
-    padding: 16,
+    padding: spacing.lg,
+    gap: spacing.md,
     flexGrow: 1,
   },
   comment: {
-    borderWidth: 1,
-    borderColor: '#eee',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 10,
-    backgroundColor: '#fafafa',
+    marginBottom: 0,
+    padding: spacing.lg,
   },
   commentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: spacing.sm,
+  },
+  authorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  authorAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: radius.sm,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  authorAvatarText: {
+    color: colors.primaryDark,
+    fontSize: 13,
+    fontWeight: '700',
   },
   author: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#333',
+    color: colors.text,
   },
   delete: {
     fontSize: 13,
-    color: '#c5221f',
+    color: colors.danger,
     fontWeight: '600',
   },
   text: {
     fontSize: 15,
-    color: '#444',
-    lineHeight: 21,
+    color: colors.text,
+    lineHeight: 22,
   },
   commentFooter: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginTop: 10,
+    gap: spacing.sm,
+    marginTop: spacing.md,
   },
   centered: {
-    marginTop: 40,
+    marginTop: 48,
   },
   footer: {
-    paddingVertical: 16,
+    paddingVertical: spacing.lg,
+  },
+  emptyWrap: {
+    alignItems: 'center',
+    marginTop: 64,
+  },
+  emptyIcon: {
+    fontSize: 40,
+    marginBottom: spacing.md,
   },
   empty: {
     textAlign: 'center',
-    color: '#888',
-    marginTop: 40,
+    color: colors.textMuted,
+    fontSize: 15,
   },
   inputBar: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    padding: 12,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#ddd',
-    gap: 8,
+    padding: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    backgroundColor: colors.surface,
+    gap: spacing.sm,
   },
   input: {
     flex: 1,
     maxHeight: 100,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 2,
     fontSize: 15,
-    backgroundColor: '#fff',
-  },
-  sendLoading: {
-    paddingHorizontal: 12,
+    color: colors.text,
+    backgroundColor: colors.surfaceMuted,
   },
 });

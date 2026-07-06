@@ -2,7 +2,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
-  Button,
   FlatList,
   Pressable,
   StyleSheet,
@@ -11,9 +10,12 @@ import {
   View,
 } from 'react-native';
 
+import AppButton from '../components/AppButton';
+import Card from '../components/Card';
 import LikeButton from '../components/LikeButton';
 import ReportButton from '../components/ReportButton';
 import { getFeed } from '../services/articles';
+import { colors, radius, spacing, typography } from '../theme';
 
 const PAGE_SIZE = 10;
 
@@ -88,7 +90,7 @@ export default function FeedScreen({ navigation }) {
 
   function renderItem({ item }) {
     return (
-      <Pressable
+      <Card
         style={styles.card}
         onPress={() => navigation.navigate('ArticleDetail', { article: item })}
       >
@@ -96,52 +98,63 @@ export default function FeedScreen({ navigation }) {
         <Text style={styles.cardContent} numberOfLines={3}>
           {item.content}
         </Text>
+        {Array.isArray(item.tags) && item.tags.length > 0 && (
+          <View style={styles.tagRow}>
+            {item.tags.slice(0, 3).map((t) => (
+              <View key={t} style={styles.tagChip}>
+                <Text style={styles.tagChipText}>#{t}</Text>
+              </View>
+            ))}
+          </View>
+        )}
         <View style={styles.cardFooter}>
           <LikeButton entity={item} />
           <ReportButton entity={item} />
         </View>
-      </Pressable>
+      </Card>
     );
   }
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchBar}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Buscar por tag..."
-          autoCapitalize="none"
-          value={tag}
-          onChangeText={setTag}
-          onSubmitEditing={handleSearch}
-        />
-        <Button title="Buscar" onPress={handleSearch} />
-      </View>
-      {appliedTag ? (
-        <View style={styles.tagBar}>
-          <Text style={styles.tagLabel}>Tag: {appliedTag}</Text>
-          <Pressable onPress={clearSearch}>
-            <Text style={styles.tagClear}>Limpar</Text>
-          </Pressable>
+      <View style={styles.toolbar}>
+        <View style={styles.searchBar}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Buscar por tag..."
+            placeholderTextColor={colors.textFaint}
+            autoCapitalize="none"
+            value={tag}
+            onChangeText={setTag}
+            onSubmitEditing={handleSearch}
+          />
+          <AppButton title="Buscar" size="sm" onPress={handleSearch} />
         </View>
-      ) : null}
+        {appliedTag ? (
+          <View style={styles.tagBar}>
+            <Text style={styles.tagLabel}>#{appliedTag}</Text>
+            <Pressable onPress={clearSearch} hitSlop={8}>
+              <Text style={styles.tagClear}>✕ Limpar</Text>
+            </Pressable>
+          </View>
+        ) : null}
 
-      <View style={styles.sortBar}>
-        <Text style={styles.sortLabel}>Ordenar por:</Text>
-        <SortButton
-          label="Recentes"
-          active={sort === 'recent'}
-          onPress={() => changeSort('recent')}
-        />
-        <SortButton
-          label="Mais curtidos"
-          active={sort === 'likes'}
-          onPress={() => changeSort('likes')}
-        />
+        <View style={styles.sortBar}>
+          <SortButton
+            label="Recentes"
+            active={sort === 'recent'}
+            onPress={() => changeSort('recent')}
+          />
+          <SortButton
+            label="Mais curtidos"
+            active={sort === 'likes'}
+            onPress={() => changeSort('likes')}
+          />
+        </View>
       </View>
 
       {loading ? (
-        <ActivityIndicator style={styles.centered} size="large" />
+        <ActivityIndicator style={styles.centered} size="large" color={colors.primary} />
       ) : error ? (
         <Text style={styles.error}>{error}</Text>
       ) : (
@@ -153,15 +166,18 @@ export default function FeedScreen({ navigation }) {
           refreshing={loading}
           onRefresh={() => loadPage(1, sort, appliedTag)}
           ListEmptyComponent={
-            <Text style={styles.empty}>Nenhum artigo publicado ainda.</Text>
+            <View style={styles.emptyWrap}>
+              <Text style={styles.emptyIcon}>📭</Text>
+              <Text style={styles.empty}>Nenhum artigo publicado ainda.</Text>
+            </View>
           }
           ListFooterComponent={
             hasMore ? (
               loadingMore ? (
-                <ActivityIndicator style={styles.footer} />
+                <ActivityIndicator style={styles.footer} color={colors.primary} />
               ) : (
                 <View style={styles.footer}>
-                  <Button title="Carregar mais" onPress={loadMore} />
+                  <AppButton title="Carregar mais" variant="secondary" onPress={loadMore} />
                 </View>
               )
             ) : null
@@ -178,9 +194,7 @@ function SortButton({ label, active, onPress }) {
       onPress={onPress}
       style={[styles.sortButton, active && styles.sortButtonActive]}
     >
-      <Text style={[styles.sortText, active && styles.sortTextActive]}>
-        {label}
-      </Text>
+      <Text style={[styles.sortText, active && styles.sortTextActive]}>{label}</Text>
     </Pressable>
   );
 }
@@ -188,110 +202,137 @@ function SortButton({ label, active, onPress }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
+  },
+  toolbar: {
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
-    gap: 8,
+    gap: spacing.sm,
   },
   searchInput: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 2,
     fontSize: 14,
+    color: colors.text,
+    backgroundColor: colors.surfaceMuted,
   },
   tagBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingBottom: 8,
+    marginTop: spacing.md,
   },
   tagLabel: {
     fontSize: 13,
-    color: '#1a73e8',
-    fontWeight: '600',
+    color: colors.primaryDark,
+    fontWeight: '700',
   },
   tagClear: {
     fontSize: 13,
-    color: '#c5221f',
+    color: colors.danger,
     fontWeight: '600',
   },
   sortBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ddd',
-  },
-  sortLabel: {
-    fontSize: 13,
-    color: '#666',
-    marginRight: 8,
+    gap: spacing.sm,
+    marginTop: spacing.md,
   },
   sortButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: '#eee',
-    marginRight: 8,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 7,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceMuted,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   sortButtonActive: {
-    backgroundColor: '#1a73e8',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   sortText: {
     fontSize: 13,
-    color: '#444',
+    color: colors.textMuted,
     fontWeight: '600',
   },
   sortTextActive: {
-    color: '#fff',
+    color: colors.white,
   },
   list: {
-    padding: 16,
+    padding: spacing.lg,
+    gap: spacing.md,
   },
   card: {
-    borderWidth: 1,
-    borderColor: '#eee',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 12,
-    backgroundColor: '#fafafa',
+    marginBottom: 0,
   },
   cardTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    marginBottom: 4,
+    ...typography.heading,
+    fontSize: 18,
+    marginBottom: spacing.xs,
   },
   cardContent: {
     fontSize: 14,
-    color: '#555',
-    marginBottom: 8,
+    color: colors.textMuted,
+    lineHeight: 20,
+    marginBottom: spacing.md,
+  },
+  tagRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
+    marginBottom: spacing.md,
+  },
+  tagChip: {
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.sm,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  tagChipText: {
+    fontSize: 11,
+    color: colors.primaryDark,
+    fontWeight: '600',
   },
   cardFooter: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: spacing.sm,
   },
   centered: {
-    marginTop: 40,
+    marginTop: 48,
   },
   footer: {
-    paddingVertical: 16,
+    paddingVertical: spacing.lg,
+  },
+  emptyWrap: {
+    alignItems: 'center',
+    marginTop: 64,
+  },
+  emptyIcon: {
+    fontSize: 40,
+    marginBottom: spacing.md,
   },
   empty: {
     textAlign: 'center',
-    color: '#888',
-    marginTop: 40,
+    color: colors.textMuted,
+    fontSize: 15,
   },
   error: {
     textAlign: 'center',
-    color: '#c5221f',
-    marginTop: 40,
+    color: colors.danger,
+    marginTop: 48,
+    fontWeight: '600',
   },
 });

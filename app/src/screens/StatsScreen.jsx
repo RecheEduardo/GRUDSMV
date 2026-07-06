@@ -2,7 +2,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 
+import Card from '../components/Card';
 import { getAdminStats } from '../services/articles';
+import { colors, radius, spacing, typography } from '../theme';
 
 // Tela de estatisticas (somente ADMIN): artigos publicados, curtidas e
 // comentarios recebidos, agregados por usuario.
@@ -32,21 +34,28 @@ export default function StatsScreen() {
 
   function renderItem({ item }) {
     return (
-      <View style={styles.row}>
-        <Text style={styles.username}>{item.username}</Text>
-        <View style={styles.metrics}>
-          <Text style={styles.metric}>Artigos: {item.publishedArticles}</Text>
-          <Text style={styles.metric}>Curtidas: {item.likes}</Text>
-          <Text style={styles.metric}>Comentarios: {item.comments}</Text>
+      <Card style={styles.card}>
+        <View style={styles.userRow}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>
+              {item.username?.[0]?.toUpperCase() || '?'}
+            </Text>
+          </View>
+          <Text style={styles.username}>{item.username}</Text>
         </View>
-      </View>
+        <View style={styles.metrics}>
+          <Metric value={item.publishedArticles} label="Artigos" />
+          <Metric value={item.likes} label="Curtidas" />
+          <Metric value={item.comments} label="Comentarios" />
+        </View>
+      </Card>
     );
   }
 
   return (
     <View style={styles.container}>
       {loading ? (
-        <ActivityIndicator style={styles.centered} size="large" />
+        <ActivityIndicator style={styles.centered} size="large" color={colors.primary} />
       ) : error ? (
         <Text style={styles.error}>{error}</Text>
       ) : (
@@ -57,15 +66,20 @@ export default function StatsScreen() {
           contentContainerStyle={styles.list}
           refreshing={loading}
           onRefresh={load}
-          ListHeaderComponent={
-            <View style={styles.header}>
-              <Text style={[styles.username, styles.headerLabel]}>Usuario</Text>
-              <Text style={styles.headerMetrics}>Artigos / Curtidas / Comentarios</Text>
-            </View>
+          ListEmptyComponent={
+            <Text style={styles.empty}>Nenhum usuario encontrado.</Text>
           }
-          ListEmptyComponent={<Text style={styles.empty}>Nenhum usuario encontrado.</Text>}
         />
       )}
+    </View>
+  );
+}
+
+function Metric({ value, label }) {
+  return (
+    <View style={styles.metric}>
+      <Text style={styles.metricValue}>{value}</Text>
+      <Text style={styles.metricLabel}>{label}</Text>
     </View>
   );
 }
@@ -73,53 +87,69 @@ export default function StatsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
   },
   list: {
-    padding: 16,
+    padding: spacing.lg,
+    gap: spacing.md,
   },
-  header: {
-    marginBottom: 8,
+  card: {
+    marginBottom: 0,
   },
-  headerLabel: {
-    marginBottom: 2,
+  userRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginBottom: spacing.lg,
   },
-  headerMetrics: {
-    fontSize: 12,
-    color: '#888',
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.md,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  row: {
-    borderWidth: 1,
-    borderColor: '#eee',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 12,
-    backgroundColor: '#fafafa',
+  avatarText: {
+    color: colors.white,
+    fontSize: 18,
+    fontWeight: '800',
   },
   username: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 8,
+    ...typography.heading,
+    fontSize: 17,
   },
   metrics: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
   },
   metric: {
-    fontSize: 13,
-    color: '#555',
+    alignItems: 'center',
+    flex: 1,
+  },
+  metricValue: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: colors.primaryDark,
+  },
+  metricLabel: {
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: 2,
   },
   centered: {
-    marginTop: 40,
+    marginTop: 48,
   },
   empty: {
     textAlign: 'center',
-    color: '#888',
-    marginTop: 40,
+    color: colors.textMuted,
+    marginTop: 48,
+    fontSize: 15,
   },
   error: {
     textAlign: 'center',
-    color: '#c5221f',
-    marginTop: 40,
+    color: colors.danger,
+    marginTop: 48,
+    fontWeight: '600',
   },
 });

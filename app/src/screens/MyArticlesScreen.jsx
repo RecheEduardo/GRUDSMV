@@ -3,16 +3,18 @@ import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Button,
   FlatList,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 
+import AppButton from '../components/AppButton';
+import Card from '../components/Card';
 import StatusBadge from '../components/StatusBadge';
 import { useArticleStatus } from '../hooks/useArticleStatus';
 import { deleteArticle, getMyArticles } from '../services/articles';
+import { colors, spacing, typography } from '../theme';
 
 // Status em que o autor ainda pode editar/excluir o proprio artigo.
 const EDITABLE_STATUSES = ['DRAFT', 'REVIEW'];
@@ -97,56 +99,61 @@ export default function MyArticlesScreen({ navigation }) {
     const isDeleting = deletingId === item.id;
     const editable = EDITABLE_STATUSES.includes(item.status);
     return (
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>{item.title}</Text>
+      <Card style={styles.card}>
+        <View style={styles.cardTop}>
+          <Text style={styles.cardTitle}>{item.title}</Text>
+          <StatusBadge status={item.status} />
+        </View>
         <Text style={styles.cardContent} numberOfLines={2}>
           {item.content}
         </Text>
-        <View style={styles.cardFooter}>
-          <StatusBadge status={item.status} />
-          {item.status === 'DRAFT' &&
-            (isSubmitting ? (
-              <ActivityIndicator />
-            ) : (
-              <Button
-                title="Enviar para revisao"
-                onPress={() => handleSubmit(item)}
-              />
-            ))}
-        </View>
 
-        {editable && (
-          <View style={styles.cardActions}>
-            {isDeleting ? (
-              <ActivityIndicator />
-            ) : (
-              <>
-                <Button title="Editar" onPress={() => handleEdit(item)} />
-                <View style={styles.spacer} />
-                <Button
-                  title="Excluir"
-                  color="#c5221f"
-                  onPress={() => handleDelete(item)}
-                />
-              </>
-            )}
-          </View>
-        )}
-      </View>
+        <View style={styles.actions}>
+          {item.status === 'DRAFT' && (
+            <AppButton
+              title="Enviar para revisao"
+              variant="secondary"
+              size="sm"
+              loading={isSubmitting}
+              onPress={() => handleSubmit(item)}
+              style={styles.actionBtn}
+            />
+          )}
+          {editable && (
+            <>
+              <AppButton
+                title="Editar"
+                variant="ghost"
+                size="sm"
+                onPress={() => handleEdit(item)}
+                style={styles.actionBtn}
+              />
+              <AppButton
+                title="Excluir"
+                variant="danger"
+                size="sm"
+                loading={isDeleting}
+                onPress={() => handleDelete(item)}
+                style={styles.actionBtn}
+              />
+            </>
+          )}
+        </View>
+      </Card>
     );
   }
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Button
-          title="+ Novo artigo"
+        <AppButton
+          title="+  Novo artigo"
           onPress={() => navigation.navigate('CreateArticle')}
         />
       </View>
 
       {loading ? (
-        <ActivityIndicator style={styles.centered} size="large" />
+        <ActivityIndicator style={styles.centered} size="large" color={colors.primary} />
       ) : error ? (
         <Text style={styles.error}>{error}</Text>
       ) : (
@@ -158,9 +165,10 @@ export default function MyArticlesScreen({ navigation }) {
           refreshing={loading}
           onRefresh={load}
           ListEmptyComponent={
-            <Text style={styles.empty}>
-              Voce ainda nao criou nenhum artigo.
-            </Text>
+            <View style={styles.emptyWrap}>
+              <Text style={styles.emptyIcon}>✍️</Text>
+              <Text style={styles.empty}>Voce ainda nao criou nenhum artigo.</Text>
+            </View>
           }
         />
       )}
@@ -171,59 +179,68 @@ export default function MyArticlesScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
   },
   header: {
-    padding: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#ddd',
+    padding: spacing.lg,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   list: {
-    padding: 16,
+    padding: spacing.lg,
+    gap: spacing.md,
   },
   card: {
-    borderWidth: 1,
-    borderColor: '#eee',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 12,
-    backgroundColor: '#fafafa',
+    marginBottom: 0,
+  },
+  cardTop: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
   },
   cardTitle: {
+    ...typography.heading,
     fontSize: 17,
-    fontWeight: '700',
-    marginBottom: 4,
+    flex: 1,
   },
   cardContent: {
     fontSize: 14,
-    color: '#555',
-    marginBottom: 10,
+    color: colors.textMuted,
+    lineHeight: 20,
+    marginBottom: spacing.md,
   },
-  cardFooter: {
+  actions: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
   },
-  cardActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    marginTop: 12,
-  },
-  spacer: {
-    width: 8,
+  actionBtn: {
+    flexGrow: 1,
+    minWidth: 100,
   },
   centered: {
-    marginTop: 40,
+    marginTop: 48,
+  },
+  emptyWrap: {
+    alignItems: 'center',
+    marginTop: 64,
+  },
+  emptyIcon: {
+    fontSize: 40,
+    marginBottom: spacing.md,
   },
   empty: {
     textAlign: 'center',
-    color: '#888',
-    marginTop: 40,
+    color: colors.textMuted,
+    fontSize: 15,
   },
   error: {
     textAlign: 'center',
-    color: '#c5221f',
-    marginTop: 40,
+    color: colors.danger,
+    marginTop: 48,
+    fontWeight: '600',
   },
 });

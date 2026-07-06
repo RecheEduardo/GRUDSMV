@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import {
-  ActivityIndicator,
-  Button,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
 
+import AppButton from '../components/AppButton';
+import TextField from '../components/TextField';
 import { useAuth } from '../context/AuthContext';
+import { colors, radius, spacing, typography } from '../theme';
 
 export default function RegisterScreen({ navigation }) {
   const { register } = useAuth();
@@ -37,85 +40,120 @@ export default function RegisterScreen({ navigation }) {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Criar conta</Text>
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.brand}>
+          <View style={styles.logo}>
+            <Text style={styles.logoText}>G</Text>
+          </View>
+          <Text style={styles.title}>Criar conta</Text>
+          <Text style={styles.subtitle}>Junte-se a comunidade em segundos</Text>
+        </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Nome de usuario"
-        autoCapitalize="none"
-        value={username}
-        onChangeText={setUsername}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="E-mail"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Senha"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+        <View style={styles.card}>
+          <TextField
+            label="Nome de usuario"
+            placeholder="seu_usuario"
+            autoCapitalize="none"
+            value={username}
+            onChangeText={setUsername}
+          />
+          <TextField
+            label="E-mail"
+            placeholder="voce@email.com"
+            autoCapitalize="none"
+            keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
+          />
+          <TextField
+            label="Senha"
+            placeholder="Crie uma senha"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
 
-      {error && <Text style={styles.error}>{error}</Text>}
+          {error && <Text style={styles.error}>{error}</Text>}
 
-      {loading ? (
-        <ActivityIndicator style={styles.spacer} />
-      ) : (
-        <Button title="Cadastrar" onPress={handleRegister} />
-      )}
+          <AppButton
+            title="Cadastrar"
+            onPress={handleRegister}
+            loading={loading}
+            style={styles.submit}
+          />
+        </View>
 
-      <TouchableOpacity
-        style={styles.link}
-        onPress={() => navigation.navigate('Login')}
-      >
-        <Text style={styles.linkText}>Ja tem conta? Entrar</Text>
-      </TouchableOpacity>
-    </View>
+        <Pressable style={styles.link} onPress={() => navigation.navigate('Login')}>
+          <Text style={styles.linkText}>
+            Ja tem conta? <Text style={styles.linkStrong}>Entrar</Text>
+          </Text>
+        </Pressable>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.background },
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
-    padding: 24,
-    backgroundColor: '#fff',
+    padding: spacing.xl,
   },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    marginBottom: 24,
+  brand: {
+    alignItems: 'center',
+    marginBottom: spacing.xl,
+  },
+  logo: {
+    width: 64,
+    height: 64,
+    borderRadius: radius.lg,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.lg,
+  },
+  logoText: {
+    color: colors.white,
+    fontSize: 32,
+    fontWeight: '800',
+  },
+  title: { ...typography.title, textAlign: 'center' },
+  subtitle: {
+    ...typography.subtitle,
     textAlign: 'center',
+    marginTop: spacing.xs,
+    fontWeight: '500',
   },
-  input: {
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: spacing.xl,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
-    fontSize: 16,
+    borderColor: colors.border,
   },
   error: {
-    color: '#c5221f',
-    marginBottom: 12,
-    textAlign: 'center',
+    color: colors.danger,
+    marginBottom: spacing.md,
+    fontWeight: '600',
   },
-  spacer: {
-    marginVertical: 8,
+  submit: {
+    marginTop: spacing.sm,
   },
   link: {
-    marginTop: 20,
+    marginTop: spacing.xl,
     alignItems: 'center',
   },
   linkText: {
-    color: '#1a73e8',
+    color: colors.textMuted,
     fontSize: 15,
+  },
+  linkStrong: {
+    color: colors.primaryDark,
+    fontWeight: '700',
   },
 });

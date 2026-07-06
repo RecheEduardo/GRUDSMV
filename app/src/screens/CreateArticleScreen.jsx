@@ -1,15 +1,10 @@
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Button,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import AppButton from '../components/AppButton';
+import TextField from '../components/TextField';
 import { useCreateArticle } from '../hooks/useCreateArticle';
+import { colors, radius, spacing } from '../theme';
 
 // Formulario de artigo reaproveitado para criar e editar.
 // Modo edicao quando route.params.article esta presente.
@@ -41,78 +36,64 @@ export default function CreateArticleScreen({ navigation, route }) {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.label}>Titulo</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Titulo do artigo"
-        value={title}
-        onChangeText={setTitle}
-      />
+    <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
+      <View style={styles.card}>
+        <TextField
+          label="Titulo"
+          placeholder="Titulo do artigo"
+          value={title}
+          onChangeText={setTitle}
+        />
+        <TextField
+          label="Conteudo"
+          placeholder="Escreva o conteudo..."
+          value={content}
+          onChangeText={setContent}
+          multiline
+        />
+        <TextField
+          label="Tags (separadas por virgula)"
+          placeholder="ex.: node, express"
+          autoCapitalize="none"
+          value={tags}
+          onChangeText={setTags}
+        />
 
-      <Text style={styles.label}>Conteudo</Text>
-      <TextInput
-        style={[styles.input, styles.textarea]}
-        placeholder="Escreva o conteudo..."
-        value={content}
-        onChangeText={setContent}
-        multiline
-        textAlignVertical="top"
-      />
+        {error && <Text style={styles.error}>{error}</Text>}
 
-      <Text style={styles.label}>Tags (separadas por virgula)</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="ex.: node, express"
-        autoCapitalize="none"
-        value={tags}
-        onChangeText={setTags}
-      />
-
-      {error && <Text style={styles.error}>{error}</Text>}
-
-      <View style={styles.action}>
-        {loading ? (
-          <ActivityIndicator />
-        ) : (
-          <Button
-            title={editing ? 'Salvar alteracoes' : 'Salvar rascunho'}
-            onPress={handleSave}
-          />
-        )}
+        <AppButton
+          title={editing ? 'Salvar alteracoes' : 'Salvar rascunho'}
+          onPress={handleSave}
+          loading={loading}
+          style={styles.submit}
+        />
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
   container: {
-    padding: 24,
-    backgroundColor: '#fff',
+    padding: spacing.lg,
     flexGrow: 1,
   },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 6,
-    marginTop: 12,
-  },
-  input: {
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: spacing.xl,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-  },
-  textarea: {
-    minHeight: 140,
+    borderColor: colors.border,
   },
   error: {
-    color: '#c5221f',
-    marginTop: 16,
-    textAlign: 'center',
+    color: colors.danger,
+    marginBottom: spacing.md,
+    fontWeight: '600',
   },
-  action: {
-    marginTop: 24,
+  submit: {
+    marginTop: spacing.sm,
   },
 });

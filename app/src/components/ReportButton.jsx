@@ -1,6 +1,7 @@
 import { Alert, Pressable, StyleSheet, Text } from 'react-native';
 
 import { useReports } from '../hooks/useReports';
+import { colors, radius } from '../theme';
 
 // Botao "Denunciar" reutilizavel para artigos e comentarios. Usa useReports
 // para o feedback visual. Faz stopPropagation para nao abrir o detalhe ao
@@ -37,7 +38,11 @@ export default function ReportButton({ entity, type = 'article' }) {
     <Pressable
       onPress={handlePress}
       disabled={pending || reported}
-      style={[styles.button, reported && styles.buttonReported]}
+      style={({ pressed }) => [
+        styles.button,
+        reported && styles.buttonReported,
+        pressed && styles.pressed,
+      ]}
       hitSlop={8}
     >
       <Text style={[styles.text, reported && styles.textReported]}>
@@ -50,20 +55,27 @@ export default function ReportButton({ entity, type = 'article' }) {
 const styles = StyleSheet.create({
   button: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: '#eee',
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceMuted,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   buttonReported: {
-    backgroundColor: '#fef7e0',
+    backgroundColor: colors.warningSoft,
+    borderColor: colors.warningSoft,
+  },
+  pressed: {
+    opacity: 0.8,
+    transform: [{ scale: 0.96 }],
   },
   text: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#555',
+    fontWeight: '700',
+    color: colors.textMuted,
   },
   textReported: {
-    color: '#b06000',
+    color: colors.warning,
   },
 });

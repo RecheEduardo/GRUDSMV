@@ -2,7 +2,12 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 
+import Card from '../components/Card';
 import { getTopComments } from '../services/comments';
+import { colors, radius, spacing } from '../theme';
+
+// Medalhas para as tres primeiras posicoes do ranking.
+const MEDALS = ['🥇', '🥈', '🥉'];
 
 // Tela publica: comentarios mais curtidos entre os artigos publicados.
 export default function TopCommentsScreen() {
@@ -30,24 +35,28 @@ export default function TopCommentsScreen() {
 
   function renderItem({ item, index }) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.rank}>#{index + 1}</Text>
+      <Card style={styles.card}>
+        <View style={styles.rankBadge}>
+          <Text style={styles.rankText}>{MEDALS[index] || `#${index + 1}`}</Text>
+        </View>
         <View style={styles.cardBody}>
-          <Text style={styles.articleTitle}>{item.articleTitle}</Text>
+          <Text style={styles.articleTitle} numberOfLines={1}>
+            em {item.articleTitle}
+          </Text>
           <Text style={styles.text}>{item.text}</Text>
           <View style={styles.footer}>
             <Text style={styles.author}>{item.authorUsername}</Text>
             <Text style={styles.likes}>♥ {item.likes?.length || 0}</Text>
           </View>
         </View>
-      </View>
+      </Card>
     );
   }
 
   return (
     <View style={styles.container}>
       {loading ? (
-        <ActivityIndicator style={styles.centered} size="large" />
+        <ActivityIndicator style={styles.centered} size="large" color={colors.primary} />
       ) : error ? (
         <Text style={styles.error}>{error}</Text>
       ) : (
@@ -59,7 +68,10 @@ export default function TopCommentsScreen() {
           refreshing={loading}
           onRefresh={load}
           ListEmptyComponent={
-            <Text style={styles.empty}>Nenhum comentario ainda.</Text>
+            <View style={styles.emptyWrap}>
+              <Text style={styles.emptyIcon}>💬</Text>
+              <Text style={styles.empty}>Nenhum comentario ainda.</Text>
+            </View>
           }
         />
       )}
@@ -70,64 +82,80 @@ export default function TopCommentsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
   },
   list: {
-    padding: 16,
+    padding: spacing.lg,
+    gap: spacing.md,
   },
   card: {
+    marginBottom: 0,
     flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: '#eee',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 12,
-    backgroundColor: '#fafafa',
   },
-  rank: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1a73e8',
-    marginRight: 12,
-    minWidth: 32,
+  rankBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.lg,
+  },
+  rankText: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: colors.primaryDark,
   },
   cardBody: {
     flex: 1,
   },
   articleTitle: {
     fontSize: 12,
-    color: '#888',
-    marginBottom: 4,
+    color: colors.textFaint,
+    marginBottom: spacing.xs,
+    fontStyle: 'italic',
   },
   text: {
-    fontSize: 14,
-    color: '#333',
-    marginBottom: 8,
+    fontSize: 15,
+    color: colors.text,
+    lineHeight: 21,
+    marginBottom: spacing.sm,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   author: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#555',
+    fontWeight: '700',
+    color: colors.textMuted,
   },
   likes: {
     fontSize: 13,
-    color: '#c5221f',
+    color: colors.like,
+    fontWeight: '600',
   },
   centered: {
-    marginTop: 40,
+    marginTop: 48,
+  },
+  emptyWrap: {
+    alignItems: 'center',
+    marginTop: 64,
+  },
+  emptyIcon: {
+    fontSize: 40,
+    marginBottom: spacing.md,
   },
   empty: {
     textAlign: 'center',
-    color: '#888',
-    marginTop: 40,
+    color: colors.textMuted,
+    fontSize: 15,
   },
   error: {
     textAlign: 'center',
-    color: '#c5221f',
-    marginTop: 40,
+    color: colors.danger,
+    marginTop: 48,
+    fontWeight: '600',
   },
 });

@@ -1,15 +1,13 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 
+import Card from '../components/Card';
 import { getPopularArticles } from '../services/articles';
+import { colors, radius, spacing, typography } from '../theme';
+
+// Medalhas para as tres primeiras posicoes do ranking.
+const MEDALS = ['🥇', '🥈', '🥉'];
 
 // Tela publica: artigos publicados mais curtidos.
 export default function PopularArticlesScreen({ navigation }) {
@@ -37,23 +35,27 @@ export default function PopularArticlesScreen({ navigation }) {
 
   function renderItem({ item, index }) {
     return (
-      <Pressable
+      <Card
         style={styles.card}
         onPress={() => navigation.navigate('ArticleDetail', { article: item })}
       >
-        <Text style={styles.rank}>#{index + 1}</Text>
+        <View style={styles.rankBadge}>
+          <Text style={styles.rankText}>{MEDALS[index] || `#${index + 1}`}</Text>
+        </View>
         <View style={styles.cardBody}>
-          <Text style={styles.cardTitle}>{item.title}</Text>
+          <Text style={styles.cardTitle} numberOfLines={2}>
+            {item.title}
+          </Text>
           <Text style={styles.cardLikes}>♥ {item.likes?.length || 0} curtidas</Text>
         </View>
-      </Pressable>
+      </Card>
     );
   }
 
   return (
     <View style={styles.container}>
       {loading ? (
-        <ActivityIndicator style={styles.centered} size="large" />
+        <ActivityIndicator style={styles.centered} size="large" color={colors.primary} />
       ) : error ? (
         <Text style={styles.error}>{error}</Text>
       ) : (
@@ -65,7 +67,10 @@ export default function PopularArticlesScreen({ navigation }) {
           refreshing={loading}
           onRefresh={load}
           ListEmptyComponent={
-            <Text style={styles.empty}>Nenhum artigo publicado ainda.</Text>
+            <View style={styles.emptyWrap}>
+              <Text style={styles.emptyIcon}>🔥</Text>
+              <Text style={styles.empty}>Nenhum artigo publicado ainda.</Text>
+            </View>
           }
         />
       )}
@@ -76,51 +81,64 @@ export default function PopularArticlesScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
   },
   list: {
-    padding: 16,
+    padding: spacing.lg,
+    gap: spacing.md,
   },
   card: {
+    marginBottom: 0,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#eee',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 12,
-    backgroundColor: '#fafafa',
   },
-  rank: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1a73e8',
-    marginRight: 12,
-    minWidth: 32,
+  rankBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.lg,
+  },
+  rankText: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: colors.primaryDark,
   },
   cardBody: {
     flex: 1,
   },
   cardTitle: {
+    ...typography.heading,
     fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   cardLikes: {
     fontSize: 13,
-    color: '#c5221f',
+    color: colors.like,
+    fontWeight: '600',
   },
   centered: {
-    marginTop: 40,
+    marginTop: 48,
+  },
+  emptyWrap: {
+    alignItems: 'center',
+    marginTop: 64,
+  },
+  emptyIcon: {
+    fontSize: 40,
+    marginBottom: spacing.md,
   },
   empty: {
     textAlign: 'center',
-    color: '#888',
-    marginTop: 40,
+    color: colors.textMuted,
+    fontSize: 15,
   },
   error: {
     textAlign: 'center',
-    color: '#c5221f',
-    marginTop: 40,
+    color: colors.danger,
+    marginTop: 48,
+    fontWeight: '600',
   },
 });

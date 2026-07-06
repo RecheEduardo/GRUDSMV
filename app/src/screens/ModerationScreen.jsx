@@ -1,18 +1,13 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Button,
-  FlatList,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, View } from 'react-native';
 
+import AppButton from '../components/AppButton';
+import Card from '../components/Card';
 import StatusBadge from '../components/StatusBadge';
 import { useArticleStatus } from '../hooks/useArticleStatus';
 import { getReviewArticles } from '../services/articles';
+import { colors, spacing, typography } from '../theme';
 
 // Tela de moderacao (somente ADMIN): lista os artigos em revisao e permite
 // aprovar (publicar) ou rejeitar cada um.
@@ -75,31 +70,39 @@ export default function ModerationScreen() {
   function renderItem({ item }) {
     const isBusy = submittingId === item.id;
     return (
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>{item.title}</Text>
+      <Card style={styles.card}>
+        <View style={styles.cardTop}>
+          <Text style={styles.cardTitle}>{item.title}</Text>
+          <StatusBadge status={item.status} />
+        </View>
         <Text style={styles.cardContent} numberOfLines={4}>
           {item.content}
         </Text>
-        <View style={styles.cardFooter}>
-          <StatusBadge status={item.status} />
-          {isBusy ? (
-            <ActivityIndicator />
-          ) : (
-            <View style={styles.actions}>
-              <Button title="Rejeitar" color="#c5221f" onPress={() => handleReject(item)} />
-              <View style={styles.spacer} />
-              <Button title="Aprovar" color="#137333" onPress={() => handleApprove(item)} />
-            </View>
-          )}
+        <View style={styles.actions}>
+          <AppButton
+            title="Rejeitar"
+            variant="danger"
+            size="sm"
+            loading={isBusy}
+            onPress={() => handleReject(item)}
+            style={styles.actionBtn}
+          />
+          <AppButton
+            title="Aprovar"
+            size="sm"
+            loading={isBusy}
+            onPress={() => handleApprove(item)}
+            style={styles.actionBtn}
+          />
         </View>
-      </View>
+      </Card>
     );
   }
 
   return (
     <View style={styles.container}>
       {loading ? (
-        <ActivityIndicator style={styles.centered} size="large" />
+        <ActivityIndicator style={styles.centered} size="large" color={colors.primary} />
       ) : error ? (
         <Text style={styles.error}>{error}</Text>
       ) : (
@@ -111,7 +114,10 @@ export default function ModerationScreen() {
           refreshing={loading}
           onRefresh={load}
           ListEmptyComponent={
-            <Text style={styles.empty}>Nenhum artigo aguardando revisao.</Text>
+            <View style={styles.emptyWrap}>
+              <Text style={styles.emptyIcon}>✅</Text>
+              <Text style={styles.empty}>Nenhum artigo aguardando revisao.</Text>
+            </View>
           }
         />
       )}
@@ -122,52 +128,60 @@ export default function ModerationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
   },
   list: {
-    padding: 16,
+    padding: spacing.lg,
+    gap: spacing.md,
   },
   card: {
-    borderWidth: 1,
-    borderColor: '#eee',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 12,
-    backgroundColor: '#fafafa',
+    marginBottom: 0,
+  },
+  cardTop: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
   },
   cardTitle: {
+    ...typography.heading,
     fontSize: 17,
-    fontWeight: '700',
-    marginBottom: 4,
+    flex: 1,
   },
   cardContent: {
     fontSize: 14,
-    color: '#555',
-    marginBottom: 10,
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    color: colors.textMuted,
+    lineHeight: 20,
+    marginBottom: spacing.md,
   },
   actions: {
     flexDirection: 'row',
-    alignItems: 'center',
+    gap: spacing.sm,
   },
-  spacer: {
-    width: 8,
+  actionBtn: {
+    flex: 1,
   },
   centered: {
-    marginTop: 40,
+    marginTop: 48,
+  },
+  emptyWrap: {
+    alignItems: 'center',
+    marginTop: 64,
+  },
+  emptyIcon: {
+    fontSize: 40,
+    marginBottom: spacing.md,
   },
   empty: {
     textAlign: 'center',
-    color: '#888',
-    marginTop: 40,
+    color: colors.textMuted,
+    fontSize: 15,
   },
   error: {
     textAlign: 'center',
-    color: '#c5221f',
-    marginTop: 40,
+    color: colors.danger,
+    marginTop: 48,
+    fontWeight: '600',
   },
 });

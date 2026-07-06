@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '../context/AuthContext';
+import { colors } from '../theme';
 import ArticleDetailScreen from '../screens/ArticleDetailScreen';
 import CommentsScreen from '../screens/CommentsScreen';
 import CreateArticleScreen from '../screens/CreateArticleScreen';
@@ -19,6 +20,15 @@ import TopCommentsScreen from '../screens/TopCommentsScreen';
 // de Login/Cadastro; apos autenticar, mostra as telas logadas.
 const Stack = createNativeStackNavigator();
 
+// Estilo consistente do cabecalho em todas as telas.
+const screenOptions = {
+  headerStyle: { backgroundColor: colors.surface },
+  headerShadowVisible: false,
+  headerTintColor: colors.primaryDark,
+  headerTitleStyle: { fontWeight: '700', color: colors.text },
+  contentStyle: { backgroundColor: colors.background },
+};
+
 export default function AppNavigator() {
   const { user, isAdmin, initializing } = useAuth();
 
@@ -32,7 +42,7 @@ export default function AppNavigator() {
   }
 
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={screenOptions}>
       {user ? (
         <>
           <Stack.Screen

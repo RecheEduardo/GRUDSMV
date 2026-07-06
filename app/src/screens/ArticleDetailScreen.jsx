@@ -1,7 +1,9 @@
-import { Button, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import AppButton from '../components/AppButton';
 import LikeButton from '../components/LikeButton';
 import ReportButton from '../components/ReportButton';
+import { colors, radius, spacing, typography } from '../theme';
 
 // Detalhe de um artigo publicado. Recebe o artigo via parametros de navegacao
 // (o feed ja carrega o objeto completo, incluindo o conteudo).
@@ -17,90 +19,101 @@ export default function ArticleDetailScreen({ navigation, route }) {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
       <Text style={styles.title}>{article.title}</Text>
-      <View style={styles.meta}>
-        <LikeButton entity={article} />
-        <ReportButton entity={article} />
-      </View>
 
       {Array.isArray(article.tags) && article.tags.length > 0 && (
         <View style={styles.tags}>
           {article.tags.map((tag) => (
             <View key={tag} style={styles.tag}>
-              <Text style={styles.tagText}>{tag}</Text>
+              <Text style={styles.tagText}>#{tag}</Text>
             </View>
           ))}
         </View>
       )}
 
+      <View style={styles.meta}>
+        <LikeButton entity={article} />
+        <ReportButton entity={article} />
+      </View>
+
+      <View style={styles.divider} />
+
       <Text style={styles.content}>{article.content}</Text>
 
-      <View style={styles.commentsAction}>
-        <Button
-          title="Ver comentarios"
-          onPress={() =>
-            navigation.navigate('Comments', {
-              articleId: article.id,
-              articleTitle: article.title,
-            })
-          }
-        />
-      </View>
+      <AppButton
+        title="💬  Ver comentarios"
+        variant="secondary"
+        style={styles.commentsAction}
+        onPress={() =>
+          navigation.navigate('Comments', {
+            articleId: article.id,
+            articleTitle: article.title,
+          })
+        }
+      />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
   container: {
-    padding: 24,
-    backgroundColor: '#fff',
+    padding: spacing.xl,
     flexGrow: 1,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 6,
+    ...typography.title,
+    fontSize: 26,
+    marginBottom: spacing.md,
   },
   meta: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
   },
   tags: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 16,
+    gap: spacing.xs,
+    marginBottom: spacing.lg,
   },
   tag: {
-    backgroundColor: '#eef',
-    borderRadius: 12,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.sm,
     paddingHorizontal: 10,
-    paddingVertical: 3,
-    marginRight: 8,
-    marginBottom: 8,
+    paddingVertical: 4,
   },
   tagText: {
     fontSize: 12,
-    color: '#3b3b8f',
+    color: colors.primaryDark,
     fontWeight: '600',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginBottom: spacing.lg,
   },
   content: {
     fontSize: 16,
-    lineHeight: 24,
-    color: '#333',
+    lineHeight: 26,
+    color: colors.text,
   },
   commentsAction: {
-    marginTop: 24,
+    marginTop: spacing.xl,
   },
   centered: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
   },
   error: {
-    color: '#c5221f',
+    color: colors.danger,
+    fontWeight: '600',
   },
 });
