@@ -50,14 +50,16 @@ export function useComments(articleId) {
     if (hasMore && !loadingMore) loadPage(page + 1);
   }
 
-  // Cria um comentario e o insere no topo da lista.
+  // Cria um comentario e o insere no topo da lista. Retorna o resultado
+  // completo ({ comment, notifyAuthorId, articleTitle }) para a tela decidir
+  // se dispara a notificacao local ao autor.
   async function add(text) {
     setSubmitting(true);
     setError(null);
     try {
-      const comment = await createComment(articleId, text);
-      setComments((prev) => [comment, ...prev]);
-      return comment;
+      const result = await createComment(articleId, text);
+      setComments((prev) => [result.comment, ...prev]);
+      return result;
     } catch (err) {
       setError(err.response?.data?.message || 'Nao foi possivel comentar.');
       throw err;

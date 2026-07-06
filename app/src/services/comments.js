@@ -12,9 +12,10 @@ export async function getComments(articleId, { page = 1, limit = 20 } = {}) {
 }
 
 // Cria um comentario em um artigo publicado.
+// Retorna { comment, notifyAuthorId, articleTitle } (dados p/ notificar o autor).
 export async function createComment(articleId, text) {
   const { data } = await api.post(`/articles/${articleId}/comments`, { text });
-  return data.comment;
+  return data;
 }
 
 // Exclui o proprio comentario.

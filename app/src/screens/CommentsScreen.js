@@ -17,12 +17,14 @@ import LikeButton from '../components/LikeButton';
 import ReportButton from '../components/ReportButton';
 import { useAuth } from '../context/AuthContext';
 import { useComments } from '../hooks/useComments';
+import { useNotifications } from '../hooks/useNotifications';
 
 // Tela de comentarios de um artigo publicado. Lista os comentarios (paginado),
 // permite comentar e excluir apenas os proprios.
 export default function CommentsScreen({ route }) {
   const { articleId } = route.params || {};
   const { user } = useAuth();
+  const { notifyComment } = useNotifications();
   const {
     comments,
     loading,
@@ -44,8 +46,13 @@ export default function CommentsScreen({ route }) {
     const value = text.trim();
     if (!value) return;
     try {
-      await add(value);
+      const result = await add(value);
       setText('');
+      // Notificacao local ao autor: so dispara quando o autor do artigo e o
+      // proprio usuario logado (unico alcancavel neste dispositivo).
+      if (result?.notifyAuthorId === user?.id) {
+        notifyComment(result.articleTitle);
+      }
     } catch (err) {
       Alert.alert(
         'Erro',

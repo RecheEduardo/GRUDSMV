@@ -38,7 +38,14 @@ function create(articleId, authorId, { text }) {
     reports: [],
     createdAt: new Date().toISOString(),
   });
-  return withAuthor(comment);
+
+  // Alem do comentario, devolve os dados para o app notificar o autor do
+  // artigo localmente (quem notificar e o titulo do artigo comentado).
+  return {
+    comment: withAuthor(comment),
+    notifyAuthorId: article.authorId,
+    articleTitle: article.title,
+  };
 }
 
 // Lista os comentarios de um artigo, paginados, do mais recente ao mais antigo.

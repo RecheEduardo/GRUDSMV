@@ -1,10 +1,11 @@
 const commentService = require('../services/comment.service');
 
 // Cria um comentario no artigo :id (o autor e o usuario autenticado).
+// Responde com o comentario e os dados para o app notificar o autor.
 async function create(req, res, next) {
   try {
-    const comment = commentService.create(req.params.id, req.auth.id, req.body);
-    res.status(201).json({ comment });
+    const result = commentService.create(req.params.id, req.auth.id, req.body);
+    res.status(201).json(result);
   } catch (err) {
     next(err);
   }
