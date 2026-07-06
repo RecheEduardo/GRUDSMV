@@ -7,11 +7,12 @@ import {
   View,
 } from 'react-native';
 
+import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
-// Tela inicial (placeholder do scaffolding). Prova a comunicacao app <-> backend
-// chamando GET /health e exibindo o resultado.
+// Tela inicial (logado). Sauda o usuario e mantem o health-check do backend.
 export default function HomeScreen() {
+  const { user, logout } = useAuth();
   const [status, setStatus] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -32,8 +33,8 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>GRUDSMV — Artigos</Text>
-      <Text style={styles.subtitle}>Scaffolding inicial (Commit 01)</Text>
+      <Text style={styles.title}>Ola, {user?.username}!</Text>
+      <Text style={styles.subtitle}>Perfil: {user?.role}</Text>
 
       <View style={styles.action}>
         <Button title="Verificar backend (/health)" onPress={checkHealth} />
@@ -44,6 +45,10 @@ export default function HomeScreen() {
         <Text style={[styles.feedback, styles.ok]}>Backend respondeu: {status}</Text>
       )}
       {error && <Text style={[styles.feedback, styles.error]}>{error}</Text>}
+
+      <View style={styles.logout}>
+        <Button title="Sair" color="#c5221f" onPress={logout} />
+      </View>
     </View>
   );
 }
@@ -81,5 +86,10 @@ const styles = StyleSheet.create({
   error: {
     color: '#c5221f',
     fontWeight: '600',
+  },
+  logout: {
+    marginTop: 32,
+    width: '100%',
+    maxWidth: 320,
   },
 });

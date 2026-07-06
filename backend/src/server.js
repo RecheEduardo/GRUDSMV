@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const app = require('./app');
 const { ensureDb } = require('./db/store');
 
