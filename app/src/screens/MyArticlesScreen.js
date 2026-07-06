@@ -2,6 +2,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Button,
   FlatList,
   StyleSheet,
@@ -10,12 +11,30 @@ import {
 } from 'react-native';
 
 import StatusBadge from '../components/StatusBadge';
+import { useArticleStatus } from '../hooks/useArticleStatus';
 import { getMyArticles } from '../services/articles';
 
 export default function MyArticlesScreen({ navigation }) {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { submitForReview, submittingId } = useArticleStatus();
+
+  async function handleSubmit(article) {
+    try {
+      const updated = await submitForReview(article.id);
+      // Atualiza o status na lista para refletir a mudanca imediatamente.
+      setArticles((prev) =>
+        prev.map((a) => (a.id === updated.id ? updated : a)),
+      );
+      Alert.alert('Pronto', 'Artigo enviado para revisao.');
+    } catch (err) {
+      Alert.alert(
+        'Erro',
+        err.response?.data?.message || 'Nao foi possivel enviar para revisao.',
+      );
+    }
+  }
 
   const load = useCallback(async () => {
     setError(null);
@@ -37,13 +56,25 @@ export default function MyArticlesScreen({ navigation }) {
   );
 
   function renderItem({ item }) {
+    const isSubmitting = submittingId === item.id;
     return (
       <View style={styles.card}>
         <Text style={styles.cardTitle}>{item.title}</Text>
         <Text style={styles.cardContent} numberOfLines={2}>
           {item.content}
         </Text>
-        <StatusBadge status={item.status} />
+        <View style={styles.cardFooter}>
+          <StatusBadge status={item.status} />
+          {item.status === 'DRAFT' &&
+            (isSubmitting ? (
+              <ActivityIndicator />
+            ) : (
+              <Button
+                title="Enviar para revisao"
+                onPress={() => handleSubmit(item)}
+              />
+            ))}
+        </View>
       </View>
     );
   }
@@ -110,6 +141,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#555',
     marginBottom: 10,
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   centered: {
     marginTop: 40,

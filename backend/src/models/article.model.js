@@ -8,4 +8,18 @@ const ARTICLE_STATUS = {
   REJECTED: 'REJECTED',
 };
 
-module.exports = { ARTICLE_STATUS };
+// Maquina de estados dos artigos: transicoes permitidas a partir de cada status.
+//   DRAFT   -> REVIEW              (autor envia para revisao)
+//   REVIEW  -> PUBLISHED/REJECTED  (admin aprova/rejeita)
+const STATUS_TRANSITIONS = {
+  [ARTICLE_STATUS.DRAFT]: [ARTICLE_STATUS.REVIEW],
+  [ARTICLE_STATUS.REVIEW]: [ARTICLE_STATUS.PUBLISHED, ARTICLE_STATUS.REJECTED],
+  [ARTICLE_STATUS.PUBLISHED]: [],
+  [ARTICLE_STATUS.REJECTED]: [],
+};
+
+function canTransition(from, to) {
+  return (STATUS_TRANSITIONS[from] || []).includes(to);
+}
+
+module.exports = { ARTICLE_STATUS, STATUS_TRANSITIONS, canTransition };

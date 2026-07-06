@@ -18,4 +18,13 @@ async function listMine(req, res, next) {
   }
 }
 
-module.exports = { create, listMine };
+async function submit(req, res, next) {
+  try {
+    const article = articleService.submitForReview(req.params.id, req.auth.id);
+    res.status(200).json({ article });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { create, listMine, submit };
