@@ -11,7 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
 // Tela inicial (logado). Sauda o usuario e mantem o health-check do backend.
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
   const { user, logout } = useAuth();
   const [status, setStatus] = useState(null);
   const [error, setError] = useState(null);
@@ -35,6 +35,13 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Ola, {user?.username}!</Text>
       <Text style={styles.subtitle}>Perfil: {user?.role}</Text>
+
+      <View style={styles.action}>
+        <Button
+          title="Meus Artigos"
+          onPress={() => navigation.navigate('MyArticles')}
+        />
+      </View>
 
       <View style={styles.action}>
         <Button title="Verificar backend (/health)" onPress={checkHealth} />
@@ -74,6 +81,7 @@ const styles = StyleSheet.create({
   action: {
     width: '100%',
     maxWidth: 320,
+    marginVertical: 6,
   },
   feedback: {
     marginTop: 16,

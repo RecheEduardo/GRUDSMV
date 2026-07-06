@@ -2,8 +2,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '../context/AuthContext';
+import CreateArticleScreen from '../screens/CreateArticleScreen';
 import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/LoginScreen';
+import MyArticlesScreen from '../screens/MyArticlesScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 
 // Stack principal. Enquanto nao houver usuario autenticado, mostra o fluxo
@@ -25,11 +27,23 @@ export default function AppNavigator() {
   return (
     <Stack.Navigator>
       {user ? (
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{ title: 'GRUDSMV' }}
-        />
+        <>
+          <Stack.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{ title: 'GRUDSMV' }}
+          />
+          <Stack.Screen
+            name="MyArticles"
+            component={MyArticlesScreen}
+            options={{ title: 'Meus Artigos' }}
+          />
+          <Stack.Screen
+            name="CreateArticle"
+            component={CreateArticleScreen}
+            options={{ title: 'Novo Artigo' }}
+          />
+        </>
       ) : (
         <>
           <Stack.Screen
