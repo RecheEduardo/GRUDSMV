@@ -19,6 +19,16 @@ async function listFeed(req, res, next) {
   }
 }
 
+// Artigos populares (mais curtidos entre os publicados). Tela publica.
+async function listPopular(req, res, next) {
+  try {
+    const articles = articleService.listPopular(req.query.limit);
+    res.status(200).json({ articles });
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function listMine(req, res, next) {
   try {
     const articles = articleService.listByAuthor(req.auth.id);
@@ -110,6 +120,7 @@ async function report(req, res, next) {
 module.exports = {
   create,
   listFeed,
+  listPopular,
   listMine,
   submit,
   approve,

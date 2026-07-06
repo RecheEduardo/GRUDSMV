@@ -53,19 +53,28 @@ function submitForReview(articleId, userId) {
   return changeStatus(article, ARTICLE_STATUS.REVIEW);
 }
 
-// Feed publico: lista apenas artigos PUBLISHED, com paginacao e ordenacao.
+// Feed publico: lista apenas artigos PUBLISHED, com paginacao, ordenacao e
+// busca opcional por tag.
 //   sort = 'likes' -> mais curtidos primeiro; caso contrario, mais recentes.
+//   tag -> filtra artigos que contenham a tag informada (case-insensitive).
 // Retorna metadados de paginacao para o app decidir se ha mais paginas.
-function listPublished({ page = 1, limit = 10, sort = 'recent' } = {}) {
+function listPublished({ page = 1, limit = 10, sort = 'recent', tag } = {}) {
   const pageNum = Math.max(1, parseInt(page, 10) || 1);
   const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 10));
 
   // Oculta do feed os artigos que atingiram o limite de denuncias.
-  const items = articleRepository
+  let items = articleRepository
     .findByStatus(ARTICLE_STATUS.PUBLISHED)
     .filter(
       (a) => (a.reports?.length || 0) < config.reportThreshold,
     );
+
+  if (tag && tag.trim()) {
+    const target = tag.trim().toLowerCase();
+    items = items.filter((a) =>
+      (a.tags || []).some((t) => t.toLowerCase() === target),
+    );
+  }
 
   if (sort === 'likes') {
     items.sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0));
@@ -82,10 +91,23 @@ function listPublished({ page = 1, limit = 10, sort = 'recent' } = {}) {
     page: pageNum,
     limit: limitNum,
     sort: sort === 'likes' ? 'likes' : 'recent',
+    tag: tag && tag.trim() ? tag.trim() : null,
     total,
     totalPages: Math.ceil(total / limitNum) || 1,
     hasMore: start + limitNum < total,
   };
+}
+
+// Artigos populares: os mais curtidos entre os publicados (mesma regra de
+// ocultacao por denuncias do feed). Tela publica, sem paginacao.
+function listPopular(limit = 10) {
+  const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 10));
+
+  return articleRepository
+    .findByStatus(ARTICLE_STATUS.PUBLISHED)
+    .filter((a) => (a.reports?.length || 0) < config.reportThreshold)
+    .sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0))
+    .slice(0, limitNum);
 }
 
 // Lista os artigos aguardando moderacao (status REVIEW), do mais antigo para o
@@ -182,6 +204,7 @@ module.exports = {
   create,
   listByAuthor,
   listPublished,
+  listPopular,
   changeStatus,
   submitForReview,
   listForReview,

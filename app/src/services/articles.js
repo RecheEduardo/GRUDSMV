@@ -11,13 +11,19 @@ export async function getMyArticles() {
   return data.articles;
 }
 
-// Feed publico de artigos publicados (paginado + ordenado).
-// Retorna { articles, page, limit, sort, total, totalPages, hasMore }.
-export async function getFeed({ page = 1, limit = 10, sort = 'recent' } = {}) {
+// Feed publico de artigos publicados (paginado + ordenado + busca por tag).
+// Retorna { articles, page, limit, sort, tag, total, totalPages, hasMore }.
+export async function getFeed({ page = 1, limit = 10, sort = 'recent', tag } = {}) {
   const { data } = await api.get('/articles', {
-    params: { page, limit, sort },
+    params: { page, limit, sort, tag: tag || undefined },
   });
   return data;
+}
+
+// Artigos populares (mais curtidos entre os publicados). Tela publica.
+export async function getPopularArticles(limit = 10) {
+  const { data } = await api.get('/articles/popular', { params: { limit } });
+  return data.articles;
 }
 
 export async function updateArticle(id, { title, content, tags }) {

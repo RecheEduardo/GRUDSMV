@@ -21,6 +21,16 @@ async function list(req, res, next) {
   }
 }
 
+// Comentarios mais curtidos entre os artigos publicados (?limit). Tela publica.
+async function listTop(req, res, next) {
+  try {
+    const comments = commentService.listTop(req.query.limit);
+    res.status(200).json({ comments });
+  } catch (err) {
+    next(err);
+  }
+}
+
 // Exclui o proprio comentario :id.
 async function remove(req, res, next) {
   try {
@@ -61,4 +71,4 @@ async function report(req, res, next) {
   }
 }
 
-module.exports = { create, list, remove, like, unlike, report };
+module.exports = { create, list, listTop, remove, like, unlike, report };

@@ -47,6 +47,20 @@ export default function HomeScreen({ navigation }) {
         />
       </View>
 
+      <View style={styles.action}>
+        <Button
+          title="Artigos Populares"
+          onPress={() => navigation.navigate('PopularArticles')}
+        />
+      </View>
+
+      <View style={styles.action}>
+        <Button
+          title="Comentarios Mais Curtidos"
+          onPress={() => navigation.navigate('TopComments')}
+        />
+      </View>
+
       {isAdmin && (
         <View style={styles.action}>
           <Button

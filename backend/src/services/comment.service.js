@@ -71,6 +71,31 @@ function listByArticle(articleId, { page = 1, limit = 20 } = {}) {
   };
 }
 
+// Enriquece um comentario com o titulo do artigo, para a tela publica de
+// comentarios mais curtidos exibir o contexto sem uma segunda requisicao.
+function withArticleTitle(comment) {
+  const article = articleRepository.findById(comment.articleId);
+  return { ...comment, articleTitle: article ? article.title : null };
+}
+
+// Comentarios mais curtidos entre os artigos publicados. Tela publica, sem
+// paginacao.
+function listTop(limit = 10) {
+  const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 10));
+  const publishedIds = new Set(
+    articleRepository
+      .findByStatus(ARTICLE_STATUS.PUBLISHED)
+      .map((a) => a.id),
+  );
+
+  return commentRepository
+    .getAll()
+    .filter((c) => publishedIds.has(c.articleId))
+    .sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0))
+    .slice(0, limitNum)
+    .map((c) => withAuthor(withArticleTitle(c)));
+}
+
 // Exclui um comentario, permitido apenas ao proprio autor.
 function removeOwn(commentId, userId) {
   const comment = commentRepository.findById(commentId);
@@ -124,4 +149,12 @@ function report(commentId, userId) {
   );
 }
 
-module.exports = { create, listByArticle, removeOwn, like, unlike, report };
+module.exports = {
+  create,
+  listByArticle,
+  listTop,
+  removeOwn,
+  like,
+  unlike,
+  report,
+};

@@ -7,6 +7,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
 
@@ -21,6 +22,8 @@ const PAGE_SIZE = 10;
 export default function FeedScreen({ navigation }) {
   const [articles, setArticles] = useState([]);
   const [sort, setSort] = useState('recent');
+  const [tag, setTag] = useState('');
+  const [appliedTag, setAppliedTag] = useState('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -28,9 +31,9 @@ export default function FeedScreen({ navigation }) {
   const [error, setError] = useState(null);
 
   // Carrega uma pagina. Na primeira pagina substitui a lista; nas demais,
-  // concatena (paginacao). O sort e passado explicitamente para evitar
-  // depender do estado ainda nao aplicado ao trocar a ordenacao.
-  const loadPage = useCallback(async (pageToLoad, sortToUse) => {
+  // concatena (paginacao). Sort e tag sao passados explicitamente para evitar
+  // depender do estado ainda nao aplicado ao trocar a ordenacao/busca.
+  const loadPage = useCallback(async (pageToLoad, sortToUse, tagToUse) => {
     setError(null);
     if (pageToLoad === 1) setLoading(true);
     else setLoadingMore(true);
@@ -39,6 +42,7 @@ export default function FeedScreen({ navigation }) {
         page: pageToLoad,
         limit: PAGE_SIZE,
         sort: sortToUse,
+        tag: tagToUse,
       });
       setArticles((prev) =>
         pageToLoad === 1 ? data.articles : [...prev, ...data.articles],
@@ -56,18 +60,30 @@ export default function FeedScreen({ navigation }) {
   // Recarrega a primeira pagina ao focar (ex.: apos um artigo ser publicado).
   useFocusEffect(
     useCallback(() => {
-      loadPage(1, sort);
-    }, [loadPage, sort]),
+      loadPage(1, sort, appliedTag);
+    }, [loadPage, sort, appliedTag]),
   );
 
   function changeSort(nextSort) {
     if (nextSort === sort) return;
     setSort(nextSort);
-    loadPage(1, nextSort);
+    loadPage(1, nextSort, appliedTag);
+  }
+
+  function handleSearch() {
+    const nextTag = tag.trim();
+    setAppliedTag(nextTag);
+    loadPage(1, sort, nextTag);
+  }
+
+  function clearSearch() {
+    setTag('');
+    setAppliedTag('');
+    loadPage(1, sort, '');
   }
 
   function loadMore() {
-    if (hasMore && !loadingMore) loadPage(page + 1, sort);
+    if (hasMore && !loadingMore) loadPage(page + 1, sort, appliedTag);
   }
 
   function renderItem({ item }) {
@@ -90,6 +106,26 @@ export default function FeedScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <View style={styles.searchBar}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar por tag..."
+          autoCapitalize="none"
+          value={tag}
+          onChangeText={setTag}
+          onSubmitEditing={handleSearch}
+        />
+        <Button title="Buscar" onPress={handleSearch} />
+      </View>
+      {appliedTag ? (
+        <View style={styles.tagBar}>
+          <Text style={styles.tagLabel}>Tag: {appliedTag}</Text>
+          <Pressable onPress={clearSearch}>
+            <Text style={styles.tagClear}>Limpar</Text>
+          </Pressable>
+        </View>
+      ) : null}
+
       <View style={styles.sortBar}>
         <Text style={styles.sortLabel}>Ordenar por:</Text>
         <SortButton
@@ -115,7 +151,7 @@ export default function FeedScreen({ navigation }) {
           renderItem={renderItem}
           contentContainerStyle={styles.list}
           refreshing={loading}
-          onRefresh={() => loadPage(1, sort)}
+          onRefresh={() => loadPage(1, sort, appliedTag)}
           ListEmptyComponent={
             <Text style={styles.empty}>Nenhum artigo publicado ainda.</Text>
           }
@@ -153,6 +189,38 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    gap: 8,
+  },
+  searchInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 14,
+  },
+  tagBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    paddingBottom: 8,
+  },
+  tagLabel: {
+    fontSize: 13,
+    color: '#1a73e8',
+    fontWeight: '600',
+  },
+  tagClear: {
+    fontSize: 13,
+    color: '#c5221f',
+    fontWeight: '600',
   },
   sortBar: {
     flexDirection: 'row',

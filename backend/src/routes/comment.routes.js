@@ -1,6 +1,7 @@
 const { Router } = require('express');
 
 const {
+  listTop,
   remove,
   like,
   unlike,
@@ -9,6 +10,9 @@ const {
 const auth = require('../middlewares/auth');
 
 const router = Router();
+
+// GET /comments/top -> comentarios mais curtidos (?limit). Publica.
+router.get('/top', listTop);
 
 // DELETE /comments/:id -> exclui o proprio comentario (apenas o autor).
 router.delete('/:id', auth, remove);

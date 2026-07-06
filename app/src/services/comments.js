@@ -40,3 +40,9 @@ export async function reportComment(id) {
   const { data } = await api.post(`/comments/${id}/report`);
   return data; // { reported, reports }
 }
+
+// Comentarios mais curtidos entre os artigos publicados. Tela publica.
+export async function getTopComments(limit = 10) {
+  const { data } = await api.get('/comments/top', { params: { limit } });
+  return data.comments;
+}

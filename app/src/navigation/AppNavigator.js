@@ -10,8 +10,10 @@ import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import ModerationScreen from '../screens/ModerationScreen';
 import MyArticlesScreen from '../screens/MyArticlesScreen';
+import PopularArticlesScreen from '../screens/PopularArticlesScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import StatsScreen from '../screens/StatsScreen';
+import TopCommentsScreen from '../screens/TopCommentsScreen';
 
 // Stack principal. Enquanto nao houver usuario autenticado, mostra o fluxo
 // de Login/Cadastro; apos autenticar, mostra as telas logadas.
@@ -64,6 +66,16 @@ export default function AppNavigator() {
             options={({ route }) => ({
               title: route.params?.article ? 'Editar Artigo' : 'Novo Artigo',
             })}
+          />
+          <Stack.Screen
+            name="PopularArticles"
+            component={PopularArticlesScreen}
+            options={{ title: 'Artigos Populares' }}
+          />
+          <Stack.Screen
+            name="TopComments"
+            component={TopCommentsScreen}
+            options={{ title: 'Comentarios Mais Curtidos' }}
           />
           {isAdmin && (
             <Stack.Screen

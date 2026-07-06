@@ -3,6 +3,7 @@ const { Router } = require('express');
 const {
   create,
   listFeed,
+  listPopular,
   listMine,
   submit,
   approve,
@@ -23,8 +24,11 @@ const { articleOwnership } = require('../middlewares/ownership');
 
 const router = Router();
 
-// GET /articles -> feed publico de artigos publicados (?page, ?limit, ?sort).
+// GET /articles -> feed publico de artigos publicados (?page, ?limit, ?sort, ?tag).
 router.get('/', listFeed);
+
+// GET /articles/popular -> artigos publicados mais curtidos (?limit). Publica.
+router.get('/popular', listPopular);
 
 // POST /articles -> cria artigo (rascunho). Requer autenticacao.
 router.post('/', auth, create);

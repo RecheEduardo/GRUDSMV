@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 
-import { createArticle, updateArticle } from '../services/articles';
+import { useCreateArticle } from '../hooks/useCreateArticle';
 
 // Formulario de artigo reaproveitado para criar e editar.
 // Modo edicao quando route.params.article esta presente.
@@ -19,12 +19,9 @@ export default function CreateArticleScreen({ navigation, route }) {
   const [title, setTitle] = useState(editing?.title ?? '');
   const [content, setContent] = useState(editing?.content ?? '');
   const [tags, setTags] = useState((editing?.tags ?? []).join(', '));
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { save, loading, error } = useCreateArticle();
 
   async function handleSave() {
-    setError(null);
-    setLoading(true);
     try {
       const parsedTags = tags
         .split(',')
@@ -35,17 +32,11 @@ export default function CreateArticleScreen({ navigation, route }) {
         content: content.trim(),
         tags: parsedTags,
       };
-      if (editing) {
-        await updateArticle(editing.id, payload);
-      } else {
-        await createArticle(payload);
-      }
+      await save(payload, editing);
       // Volta para a lista, que recarrega ao ganhar foco.
       navigation.goBack();
     } catch (err) {
-      setError(err.response?.data?.message || 'Nao foi possivel salvar o artigo.');
-    } finally {
-      setLoading(false);
+      // Erro ja fica disponivel em `error` para exibicao.
     }
   }
 
