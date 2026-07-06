@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '../context/AuthContext';
 import ArticleDetailScreen from '../screens/ArticleDetailScreen';
+import CommentsScreen from '../screens/CommentsScreen';
 import CreateArticleScreen from '../screens/CreateArticleScreen';
 import FeedScreen from '../screens/FeedScreen';
 import HomeScreen from '../screens/HomeScreen';
@@ -45,6 +46,11 @@ export default function AppNavigator() {
             name="ArticleDetail"
             component={ArticleDetailScreen}
             options={{ title: 'Artigo' }}
+          />
+          <Stack.Screen
+            name="Comments"
+            component={CommentsScreen}
+            options={{ title: 'Comentarios' }}
           />
           <Stack.Screen
             name="MyArticles"

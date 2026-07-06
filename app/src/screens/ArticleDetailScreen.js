@@ -1,11 +1,11 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Button, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import LikeButton from '../components/LikeButton';
 import ReportButton from '../components/ReportButton';
 
 // Detalhe de um artigo publicado. Recebe o artigo via parametros de navegacao
 // (o feed ja carrega o objeto completo, incluindo o conteudo).
-export default function ArticleDetailScreen({ route }) {
+export default function ArticleDetailScreen({ navigation, route }) {
   const article = route.params?.article;
 
   if (!article) {
@@ -35,6 +35,18 @@ export default function ArticleDetailScreen({ route }) {
       )}
 
       <Text style={styles.content}>{article.content}</Text>
+
+      <View style={styles.commentsAction}>
+        <Button
+          title="Ver comentarios"
+          onPress={() =>
+            navigation.navigate('Comments', {
+              articleId: article.id,
+              articleTitle: article.title,
+            })
+          }
+        />
+      </View>
     </ScrollView>
   );
 }
@@ -78,6 +90,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     color: '#333',
+  },
+  commentsAction: {
+    marginTop: 24,
   },
   centered: {
     flex: 1,

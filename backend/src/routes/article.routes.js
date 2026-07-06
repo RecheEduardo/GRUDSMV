@@ -13,6 +13,10 @@ const {
   unlike,
   report,
 } = require('../controllers/article.controller');
+const {
+  create: createComment,
+  list: listComments,
+} = require('../controllers/comment.controller');
 const auth = require('../middlewares/auth');
 const role = require('../middlewares/role');
 const { articleOwnership } = require('../middlewares/ownership');
@@ -45,6 +49,12 @@ router.delete('/:id/like', auth, unlike);
 
 // POST /articles/:id/report -> denuncia o artigo (sem duplicar por usuario).
 router.post('/:id/report', auth, report);
+
+// GET /articles/:id/comments -> lista os comentarios do artigo (paginado).
+router.get('/:id/comments', listComments);
+
+// POST /articles/:id/comments -> comenta no artigo (somente PUBLISHED).
+router.post('/:id/comments', auth, createComment);
 
 // PUT /articles/:id -> edita o proprio artigo (somente DRAFT/REVIEW).
 router.put('/:id', auth, articleOwnership, update);
