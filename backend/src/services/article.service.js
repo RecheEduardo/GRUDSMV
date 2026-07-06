@@ -5,6 +5,7 @@ const {
   isEditable,
 } = require('../models/article.model');
 const httpError = require('../utils/httpError');
+const config = require('../config');
 
 // Cria um artigo em rascunho (DRAFT) para o autor informado.
 function create(authorId, { title, content, tags }) {
@@ -59,7 +60,12 @@ function listPublished({ page = 1, limit = 10, sort = 'recent' } = {}) {
   const pageNum = Math.max(1, parseInt(page, 10) || 1);
   const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 10));
 
-  const items = articleRepository.findByStatus(ARTICLE_STATUS.PUBLISHED);
+  // Oculta do feed os artigos que atingiram o limite de denuncias.
+  const items = articleRepository
+    .findByStatus(ARTICLE_STATUS.PUBLISHED)
+    .filter(
+      (a) => (a.reports?.length || 0) < config.reportThreshold,
+    );
 
   if (sort === 'likes') {
     items.sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0));
@@ -129,6 +135,18 @@ function unlike(articleId, userId) {
   });
 }
 
+// Registra a denuncia de um usuario no artigo (idempotente: nao conta duas
+// vezes o mesmo usuario). Retorna o artigo atualizado com a lista de denuncias.
+function report(articleId, userId) {
+  const article = articleRepository.findById(articleId);
+  if (!article) throw httpError(404, 'Artigo nao encontrado');
+
+  const reports = Array.isArray(article.reports) ? article.reports : [];
+  if (reports.includes(userId)) return article;
+
+  return articleRepository.update(articleId, { reports: [...reports, userId] });
+}
+
 // Garante que o artigo ainda esta em um status editavel (DRAFT ou REVIEW).
 function assertEditable(article) {
   if (!isEditable(article.status)) {
@@ -173,4 +191,5 @@ module.exports = {
   removeOwn,
   like,
   unlike,
+  report,
 };

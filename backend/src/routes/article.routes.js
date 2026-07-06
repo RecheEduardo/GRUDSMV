@@ -11,6 +11,7 @@ const {
   remove,
   like,
   unlike,
+  report,
 } = require('../controllers/article.controller');
 const auth = require('../middlewares/auth');
 const role = require('../middlewares/role');
@@ -41,6 +42,9 @@ router.post('/:id/like', auth, like);
 
 // DELETE /articles/:id/like -> remove a curtida do usuario.
 router.delete('/:id/like', auth, unlike);
+
+// POST /articles/:id/report -> denuncia o artigo (sem duplicar por usuario).
+router.post('/:id/report', auth, report);
 
 // PUT /articles/:id -> edita o proprio artigo (somente DRAFT/REVIEW).
 router.put('/:id', auth, articleOwnership, update);

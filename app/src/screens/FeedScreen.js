@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import LikeButton from '../components/LikeButton';
+import ReportButton from '../components/ReportButton';
 import { getFeed } from '../services/articles';
 
 const PAGE_SIZE = 10;
@@ -81,6 +82,7 @@ export default function FeedScreen({ navigation }) {
         </Text>
         <View style={styles.cardFooter}>
           <LikeButton article={item} />
+          <ReportButton article={item} />
         </View>
       </Pressable>
     );
@@ -206,6 +208,7 @@ const styles = StyleSheet.create({
   cardFooter: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
   },
   centered: {
     marginTop: 40,

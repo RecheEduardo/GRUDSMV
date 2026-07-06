@@ -39,6 +39,11 @@ export async function unlikeArticle(id) {
   return data.article;
 }
 
+export async function reportArticle(id) {
+  const { data } = await api.post(`/articles/${id}/report`);
+  return data; // { reported, reports }
+}
+
 export async function submitArticle(id) {
   const { data } = await api.patch(`/articles/${id}/submit`);
   return data.article;

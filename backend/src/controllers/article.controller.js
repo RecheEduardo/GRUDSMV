@@ -97,6 +97,16 @@ async function unlike(req, res, next) {
   }
 }
 
+// Denuncia o artigo. Nao expoe quem denunciou, apenas a contagem.
+async function report(req, res, next) {
+  try {
+    const article = articleService.report(req.params.id, req.auth.id);
+    res.status(200).json({ reported: true, reports: article.reports.length });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   create,
   listFeed,
@@ -108,4 +118,5 @@ module.exports = {
   remove,
   like,
   unlike,
+  report,
 };

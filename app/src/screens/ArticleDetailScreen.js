@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import LikeButton from '../components/LikeButton';
+import ReportButton from '../components/ReportButton';
 
 // Detalhe de um artigo publicado. Recebe o artigo via parametros de navegacao
 // (o feed ja carrega o objeto completo, incluindo o conteudo).
@@ -20,6 +21,7 @@ export default function ArticleDetailScreen({ route }) {
       <Text style={styles.title}>{article.title}</Text>
       <View style={styles.meta}>
         <LikeButton article={article} />
+        <ReportButton article={article} />
       </View>
 
       {Array.isArray(article.tags) && article.tags.length > 0 && (
@@ -49,6 +51,9 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   meta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
     marginBottom: 12,
   },
   tags: {
