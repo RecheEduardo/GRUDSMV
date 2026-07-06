@@ -77,6 +77,26 @@ async function remove(req, res, next) {
   }
 }
 
+// Curte o artigo (o autor da curtida e o usuario autenticado).
+async function like(req, res, next) {
+  try {
+    const article = articleService.like(req.params.id, req.auth.id);
+    res.status(200).json({ article });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Remove a curtida do usuario autenticado no artigo.
+async function unlike(req, res, next) {
+  try {
+    const article = articleService.unlike(req.params.id, req.auth.id);
+    res.status(200).json({ article });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   create,
   listFeed,
@@ -86,4 +106,6 @@ module.exports = {
   reject,
   update,
   remove,
+  like,
+  unlike,
 };

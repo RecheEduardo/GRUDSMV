@@ -29,6 +29,16 @@ export async function deleteArticle(id) {
   await api.delete(`/articles/${id}`);
 }
 
+export async function likeArticle(id) {
+  const { data } = await api.post(`/articles/${id}/like`);
+  return data.article;
+}
+
+export async function unlikeArticle(id) {
+  const { data } = await api.delete(`/articles/${id}/like`);
+  return data.article;
+}
+
 export async function submitArticle(id) {
   const { data } = await api.patch(`/articles/${id}/submit`);
   return data.article;

@@ -9,6 +9,8 @@ const {
   reject,
   update,
   remove,
+  like,
+  unlike,
 } = require('../controllers/article.controller');
 const auth = require('../middlewares/auth');
 const role = require('../middlewares/role');
@@ -33,6 +35,12 @@ router.patch('/:id/approve', auth, role('ADMIN'), approve);
 
 // PATCH /articles/:id/reject -> rejeita (REVIEW -> REJECTED). Somente ADMIN.
 router.patch('/:id/reject', auth, role('ADMIN'), reject);
+
+// POST /articles/:id/like -> curte o artigo (sem duplicar por usuario).
+router.post('/:id/like', auth, like);
+
+// DELETE /articles/:id/like -> remove a curtida do usuario.
+router.delete('/:id/like', auth, unlike);
 
 // PUT /articles/:id -> edita o proprio artigo (somente DRAFT/REVIEW).
 router.put('/:id', auth, articleOwnership, update);

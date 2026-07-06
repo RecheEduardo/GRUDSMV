@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 
+import LikeButton from '../components/LikeButton';
 import { getFeed } from '../services/articles';
 
 const PAGE_SIZE = 10;
@@ -78,9 +79,9 @@ export default function FeedScreen({ navigation }) {
         <Text style={styles.cardContent} numberOfLines={3}>
           {item.content}
         </Text>
-        <Text style={styles.cardMeta}>
-          {(item.likes?.length || 0)} curtida(s)
-        </Text>
+        <View style={styles.cardFooter}>
+          <LikeButton article={item} />
+        </View>
       </Pressable>
     );
   }
@@ -202,9 +203,9 @@ const styles = StyleSheet.create({
     color: '#555',
     marginBottom: 8,
   },
-  cardMeta: {
-    fontSize: 12,
-    color: '#888',
+  cardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   centered: {
     marginTop: 40,

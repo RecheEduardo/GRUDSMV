@@ -104,6 +104,31 @@ function reject(articleId) {
   return changeStatus(article, ARTICLE_STATUS.REJECTED);
 }
 
+// Registra a curtida de um usuario no artigo (idempotente: nao duplica).
+// Retorna o artigo atualizado com a lista de curtidas.
+function like(articleId, userId) {
+  const article = articleRepository.findById(articleId);
+  if (!article) throw httpError(404, 'Artigo nao encontrado');
+
+  const likes = Array.isArray(article.likes) ? article.likes : [];
+  if (likes.includes(userId)) return article;
+
+  return articleRepository.update(articleId, { likes: [...likes, userId] });
+}
+
+// Remove a curtida de um usuario no artigo (idempotente).
+function unlike(articleId, userId) {
+  const article = articleRepository.findById(articleId);
+  if (!article) throw httpError(404, 'Artigo nao encontrado');
+
+  const likes = Array.isArray(article.likes) ? article.likes : [];
+  if (!likes.includes(userId)) return article;
+
+  return articleRepository.update(articleId, {
+    likes: likes.filter((id) => id !== userId),
+  });
+}
+
 // Garante que o artigo ainda esta em um status editavel (DRAFT ou REVIEW).
 function assertEditable(article) {
   if (!isEditable(article.status)) {
@@ -146,4 +171,6 @@ module.exports = {
   reject,
   updateOwn,
   removeOwn,
+  like,
+  unlike,
 };
