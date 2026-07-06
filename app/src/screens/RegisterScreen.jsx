@@ -47,7 +47,7 @@ export default function RegisterScreen({ navigation }) {
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.brand}>
           <View style={styles.logo}>
-            <Text style={styles.logoText}>G</Text>
+            <Text style={styles.logoText}>GRUDSMV</Text>
           </View>
           <Text style={styles.title}>Criar conta</Text>
           <Text style={styles.subtitle}>Junte-se a comunidade em segundos</Text>
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   logo: {
-    width: 64,
+    width: 364,
     height: 64,
     borderRadius: radius.lg,
     backgroundColor: colors.primary,
