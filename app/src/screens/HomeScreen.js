@@ -37,6 +37,10 @@ export default function HomeScreen({ navigation }) {
       <Text style={styles.subtitle}>Perfil: {user?.role}</Text>
 
       <View style={styles.action}>
+        <Button title="Feed" onPress={() => navigation.navigate('Feed')} />
+      </View>
+
+      <View style={styles.action}>
         <Button
           title="Meus Artigos"
           onPress={() => navigation.navigate('MyArticles')}

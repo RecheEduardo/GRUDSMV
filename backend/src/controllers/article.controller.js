@@ -9,6 +9,16 @@ async function create(req, res, next) {
   }
 }
 
+// Feed publico de artigos publicados (paginado e ordenado).
+async function listFeed(req, res, next) {
+  try {
+    const result = articleService.listPublished(req.query);
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function listMine(req, res, next) {
   try {
     const articles = articleService.listByAuthor(req.auth.id);
@@ -67,4 +77,13 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { create, listMine, submit, approve, reject, update, remove };
+module.exports = {
+  create,
+  listFeed,
+  listMine,
+  submit,
+  approve,
+  reject,
+  update,
+  remove,
+};

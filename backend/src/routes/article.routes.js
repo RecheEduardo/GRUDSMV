@@ -2,6 +2,7 @@ const { Router } = require('express');
 
 const {
   create,
+  listFeed,
   listMine,
   submit,
   approve,
@@ -14,6 +15,9 @@ const role = require('../middlewares/role');
 const { articleOwnership } = require('../middlewares/ownership');
 
 const router = Router();
+
+// GET /articles -> feed publico de artigos publicados (?page, ?limit, ?sort).
+router.get('/', listFeed);
 
 // POST /articles -> cria artigo (rascunho). Requer autenticacao.
 router.post('/', auth, create);

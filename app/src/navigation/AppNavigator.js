@@ -2,7 +2,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '../context/AuthContext';
+import ArticleDetailScreen from '../screens/ArticleDetailScreen';
 import CreateArticleScreen from '../screens/CreateArticleScreen';
+import FeedScreen from '../screens/FeedScreen';
 import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import ModerationScreen from '../screens/ModerationScreen';
@@ -33,6 +35,16 @@ export default function AppNavigator() {
             name="Home"
             component={HomeScreen}
             options={{ title: 'GRUDSMV' }}
+          />
+          <Stack.Screen
+            name="Feed"
+            component={FeedScreen}
+            options={{ title: 'Feed' }}
+          />
+          <Stack.Screen
+            name="ArticleDetail"
+            component={ArticleDetailScreen}
+            options={{ title: 'Artigo' }}
           />
           <Stack.Screen
             name="MyArticles"

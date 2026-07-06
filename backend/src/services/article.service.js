@@ -52,6 +52,36 @@ function submitForReview(articleId, userId) {
   return changeStatus(article, ARTICLE_STATUS.REVIEW);
 }
 
+// Feed publico: lista apenas artigos PUBLISHED, com paginacao e ordenacao.
+//   sort = 'likes' -> mais curtidos primeiro; caso contrario, mais recentes.
+// Retorna metadados de paginacao para o app decidir se ha mais paginas.
+function listPublished({ page = 1, limit = 10, sort = 'recent' } = {}) {
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
+  const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 10));
+
+  const items = articleRepository.findByStatus(ARTICLE_STATUS.PUBLISHED);
+
+  if (sort === 'likes') {
+    items.sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0));
+  } else {
+    items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }
+
+  const total = items.length;
+  const start = (pageNum - 1) * limitNum;
+  const articles = items.slice(start, start + limitNum);
+
+  return {
+    articles,
+    page: pageNum,
+    limit: limitNum,
+    sort: sort === 'likes' ? 'likes' : 'recent',
+    total,
+    totalPages: Math.ceil(total / limitNum) || 1,
+    hasMore: start + limitNum < total,
+  };
+}
+
 // Lista os artigos aguardando moderacao (status REVIEW), do mais antigo para o
 // mais recente (fila de moderacao). Uso restrito ao ADMIN (checado na rota).
 function listForReview() {
@@ -108,6 +138,7 @@ function removeOwn(article) {
 module.exports = {
   create,
   listByAuthor,
+  listPublished,
   changeStatus,
   submitForReview,
   listForReview,
