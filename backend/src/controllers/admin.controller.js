@@ -1,8 +1,8 @@
-const articleService = require('../services/article.service');
-const statsService = require('../services/stats.service');
+import articleService from '../services/article.service.js';
+import statsService from '../services/stats.service.js';
 
 // Lista a fila de moderacao (artigos em REVIEW). Rota protegida por role ADMIN.
-async function listReview(req, res, next) {
+export async function listReview(req, res, next) {
   try {
     const articles = articleService.listForReview();
     res.status(200).json({ articles });
@@ -12,7 +12,7 @@ async function listReview(req, res, next) {
 }
 
 // Estatisticas do ADMIN: artigos publicados, curtidas e comentarios por usuario.
-async function getStats(req, res, next) {
+export async function getStats(req, res, next) {
   try {
     const stats = statsService.getStatsByUser();
     res.status(200).json({ stats });
@@ -20,5 +20,3 @@ async function getStats(req, res, next) {
     next(err);
   }
 }
-
-module.exports = { listReview, getStats };

@@ -1,8 +1,8 @@
-const express = require('express');
-const cors = require('cors');
+import express from 'express';
+import cors from 'cors';
 
-const routes = require('./routes');
-const errorHandler = require('./middlewares/errorHandler');
+import routes from './routes/index.js';
+import errorHandler from './middlewares/errorHandler.js';
 
 // Monta a aplicacao Express (separada do listen para facilitar testes).
 const app = express();
@@ -20,4 +20,4 @@ app.use((req, res) => {
 // Tratamento central de erros (sempre por ultimo).
 app.use(errorHandler);
 
-module.exports = app;
+export default app;

@@ -1,11 +1,11 @@
-const articleRepository = require('../repositories/articleRepository');
-const {
+import articleRepository from '../repositories/articleRepository.js';
+import {
   ARTICLE_STATUS,
   canTransition,
   isEditable,
-} = require('../models/article.model');
-const httpError = require('../utils/httpError');
-const config = require('../config');
+} from '../models/article.model.js';
+import httpError from '../utils/httpError.js';
+import config from '../config/index.js';
 
 // Cria um artigo em rascunho (DRAFT) para o autor informado.
 function create(authorId, { title, content, tags }) {
@@ -200,7 +200,7 @@ function removeOwn(article) {
   return articleRepository.remove(article.id);
 }
 
-module.exports = {
+export default {
   create,
   listByAuthor,
   listPublished,

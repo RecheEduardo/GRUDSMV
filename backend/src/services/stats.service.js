@@ -1,11 +1,11 @@
-const userRepository = require('../repositories/userRepository');
-const articleRepository = require('../repositories/articleRepository');
-const commentRepository = require('../repositories/commentRepository');
-const { ARTICLE_STATUS } = require('../models/article.model');
+import userRepository from '../repositories/userRepository.js';
+import articleRepository from '../repositories/articleRepository.js';
+import commentRepository from '../repositories/commentRepository.js';
+import { ARTICLE_STATUS } from '../models/article.model.js';
 
 // Estatisticas do ADMIN: para cada usuario, quantidade de artigos publicados,
 // curtidas e comentarios recebidos nesses artigos.
-function getStatsByUser() {
+export function getStatsByUser() {
   const users = userRepository.getAll();
   const articles = articleRepository.getAll();
   const comments = commentRepository.getAll();
@@ -32,4 +32,4 @@ function getStatsByUser() {
   });
 }
 
-module.exports = { getStatsByUser };
+export default { getStatsByUser };

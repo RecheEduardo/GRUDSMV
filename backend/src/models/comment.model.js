@@ -2,6 +2,4 @@
 //   { id, articleId, authorId, text, likes, reports, createdAt }
 // likes/reports: arrays de ids de usuarios (curtidas/denuncias em comentarios).
 // Comentarios so existem em artigos com status PUBLISHED.
-const MAX_COMMENT_LENGTH = 1000;
-
-module.exports = { MAX_COMMENT_LENGTH };
+export const MAX_COMMENT_LENGTH = 1000;

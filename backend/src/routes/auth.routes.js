@@ -1,7 +1,7 @@
-const { Router } = require('express');
+import { Router } from 'express';
 
-const { register, login, me } = require('../controllers/auth.controller');
-const auth = require('../middlewares/auth');
+import { register, login, me } from '../controllers/auth.controller.js';
+import auth from '../middlewares/auth.js';
 
 const router = Router();
 
@@ -14,4 +14,4 @@ router.post('/login', login);
 // GET /auth/me -> usuario do token (rota protegida)
 router.get('/me', auth, me);
 
-module.exports = router;
+export default router;

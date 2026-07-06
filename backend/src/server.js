@@ -1,7 +1,7 @@
-require('dotenv').config();
+import 'dotenv/config';
 
-const app = require('./app');
-const { ensureDb } = require('./db/store');
+import app from './app.js';
+import { ensureDb } from './db/store.js';
 
 // Garante que o arquivo de store JSON exista antes de aceitar requisicoes.
 ensureDb();

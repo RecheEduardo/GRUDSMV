@@ -1,11 +1,11 @@
-const { randomUUID } = require('crypto');
+import { randomUUID } from 'crypto';
 
-const { readDb, writeDb } = require('../db/store');
+import { readDb, writeDb } from '../db/store.js';
 
 // Fabrica de repositorios genericos sobre uma colecao do store JSON.
 // Cada dominio (users, articles, comments) cria o seu a partir daqui,
 // evitando repetir a logica de leitura/escrita.
-function createRepository(collection) {
+export function createRepository(collection) {
   function getAll() {
     const db = readDb();
     return db[collection] || [];
@@ -55,5 +55,3 @@ function createRepository(collection) {
 
   return { getAll, findById, findBy, findOne, insert, update, remove };
 }
-
-module.exports = { createRepository };

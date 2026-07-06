@@ -1,8 +1,8 @@
-const { Router } = require('express');
+import { Router } from 'express';
 
-const { listReview, getStats } = require('../controllers/admin.controller');
-const auth = require('../middlewares/auth');
-const role = require('../middlewares/role');
+import { listReview, getStats } from '../controllers/admin.controller.js';
+import auth from '../middlewares/auth.js';
+import role from '../middlewares/role.js';
 
 const router = Router();
 
@@ -12,4 +12,4 @@ router.get('/articles/review', auth, role('ADMIN'), listReview);
 // GET /admin/stats -> artigos publicados, curtidas e comentarios por usuario.
 router.get('/stats', auth, role('ADMIN'), getStats);
 
-module.exports = router;
+export default router;

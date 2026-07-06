@@ -1,10 +1,10 @@
-const { Router } = require('express');
+import { Router } from 'express';
 
-const healthRoutes = require('./health.routes');
-const authRoutes = require('./auth.routes');
-const articleRoutes = require('./article.routes');
-const commentRoutes = require('./comment.routes');
-const adminRoutes = require('./admin.routes');
+import healthRoutes from './health.routes.js';
+import authRoutes from './auth.routes.js';
+import articleRoutes from './article.routes.js';
+import commentRoutes from './comment.routes.js';
+import adminRoutes from './admin.routes.js';
 
 // Agregador central de rotas.
 const router = Router();
@@ -15,4 +15,4 @@ router.use('/articles', articleRoutes);
 router.use('/comments', commentRoutes);
 router.use('/admin', adminRoutes);
 
-module.exports = router;
+export default router;

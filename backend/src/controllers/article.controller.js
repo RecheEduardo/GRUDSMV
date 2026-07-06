@@ -1,6 +1,6 @@
-const articleService = require('../services/article.service');
+import articleService from '../services/article.service.js';
 
-async function create(req, res, next) {
+export async function create(req, res, next) {
   try {
     const article = articleService.create(req.auth.id, req.body);
     res.status(201).json({ article });
@@ -10,7 +10,7 @@ async function create(req, res, next) {
 }
 
 // Feed publico de artigos publicados (paginado e ordenado).
-async function listFeed(req, res, next) {
+export async function listFeed(req, res, next) {
   try {
     const result = articleService.listPublished(req.query);
     res.status(200).json(result);
@@ -20,7 +20,7 @@ async function listFeed(req, res, next) {
 }
 
 // Artigos populares (mais curtidos entre os publicados). Tela publica.
-async function listPopular(req, res, next) {
+export async function listPopular(req, res, next) {
   try {
     const articles = articleService.listPopular(req.query.limit);
     res.status(200).json({ articles });
@@ -29,7 +29,7 @@ async function listPopular(req, res, next) {
   }
 }
 
-async function listMine(req, res, next) {
+export async function listMine(req, res, next) {
   try {
     const articles = articleService.listByAuthor(req.auth.id);
     res.status(200).json({ articles });
@@ -38,7 +38,7 @@ async function listMine(req, res, next) {
   }
 }
 
-async function submit(req, res, next) {
+export async function submit(req, res, next) {
   try {
     const article = articleService.submitForReview(req.params.id, req.auth.id);
     res.status(200).json({ article });
@@ -48,7 +48,7 @@ async function submit(req, res, next) {
 }
 
 // Moderacao (ADMIN): aprova um artigo em revisao (REVIEW -> PUBLISHED).
-async function approve(req, res, next) {
+export async function approve(req, res, next) {
   try {
     const article = articleService.approve(req.params.id);
     res.status(200).json({ article });
@@ -58,7 +58,7 @@ async function approve(req, res, next) {
 }
 
 // Moderacao (ADMIN): rejeita um artigo em revisao (REVIEW -> REJECTED).
-async function reject(req, res, next) {
+export async function reject(req, res, next) {
   try {
     const article = articleService.reject(req.params.id);
     res.status(200).json({ article });
@@ -68,7 +68,7 @@ async function reject(req, res, next) {
 }
 
 // Edita um artigo proprio (req.article vem do middleware ownership).
-async function update(req, res, next) {
+export async function update(req, res, next) {
   try {
     const article = articleService.updateOwn(req.article, req.body);
     res.status(200).json({ article });
@@ -78,7 +78,7 @@ async function update(req, res, next) {
 }
 
 // Exclui um artigo proprio (req.article vem do middleware ownership).
-async function remove(req, res, next) {
+export async function remove(req, res, next) {
   try {
     articleService.removeOwn(req.article);
     res.status(204).send();
@@ -88,7 +88,7 @@ async function remove(req, res, next) {
 }
 
 // Curte o artigo (o autor da curtida e o usuario autenticado).
-async function like(req, res, next) {
+export async function like(req, res, next) {
   try {
     const article = articleService.like(req.params.id, req.auth.id);
     res.status(200).json({ article });
@@ -98,7 +98,7 @@ async function like(req, res, next) {
 }
 
 // Remove a curtida do usuario autenticado no artigo.
-async function unlike(req, res, next) {
+export async function unlike(req, res, next) {
   try {
     const article = articleService.unlike(req.params.id, req.auth.id);
     res.status(200).json({ article });
@@ -108,7 +108,7 @@ async function unlike(req, res, next) {
 }
 
 // Denuncia o artigo. Nao expoe quem denunciou, apenas a contagem.
-async function report(req, res, next) {
+export async function report(req, res, next) {
   try {
     const article = articleService.report(req.params.id, req.auth.id);
     res.status(200).json({ reported: true, reports: article.reports.length });
@@ -117,17 +117,3 @@ async function report(req, res, next) {
   }
 }
 
-module.exports = {
-  create,
-  listFeed,
-  listPopular,
-  listMine,
-  submit,
-  approve,
-  reject,
-  update,
-  remove,
-  like,
-  unlike,
-  report,
-};

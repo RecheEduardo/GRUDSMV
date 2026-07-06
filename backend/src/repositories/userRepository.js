@@ -1,4 +1,4 @@
-const { createRepository } = require('./baseRepository');
+import { createRepository } from './baseRepository.js';
 
 // Repositorio de usuarios sobre a colecao "users" do store JSON.
 const repo = createRepository('users');
@@ -15,4 +15,4 @@ function findByUsername(username) {
   return repo.findOne((u) => u.username.toLowerCase() === target);
 }
 
-module.exports = { ...repo, findByEmail, findByUsername };
+export default { ...repo, findByEmail, findByUsername };

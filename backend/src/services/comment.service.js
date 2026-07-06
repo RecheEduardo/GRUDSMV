@@ -1,9 +1,9 @@
-const commentRepository = require('../repositories/commentRepository');
-const articleRepository = require('../repositories/articleRepository');
-const userRepository = require('../repositories/userRepository');
-const { ARTICLE_STATUS } = require('../models/article.model');
-const { MAX_COMMENT_LENGTH } = require('../models/comment.model');
-const httpError = require('../utils/httpError');
+import commentRepository from '../repositories/commentRepository.js';
+import articleRepository from '../repositories/articleRepository.js';
+import userRepository from '../repositories/userRepository.js';
+import { ARTICLE_STATUS } from '../models/article.model.js';
+import { MAX_COMMENT_LENGTH } from '../models/comment.model.js';
+import httpError from '../utils/httpError.js';
 
 // Enriquece um comentario com o username do autor (join manual com users),
 // para o app exibir quem escreveu sem uma segunda requisicao.
@@ -149,7 +149,7 @@ function report(commentId, userId) {
   );
 }
 
-module.exports = {
+export default {
   create,
   listByArticle,
   listTop,

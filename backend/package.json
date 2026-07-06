@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Backend do app de publicacao de artigos e comentarios (GRUDSMV projeto final)",
   "main": "src/server.js",
+  "type": "module",
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js"

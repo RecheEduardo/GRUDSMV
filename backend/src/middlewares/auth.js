@@ -1,9 +1,9 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
-const config = require('../config');
+import config from '../config/index.js';
 
 // Valida o token JWT do header Authorization e anexa req.auth = { id, role }.
-function auth(req, res, next) {
+export default function auth(req, res, next) {
   const header = req.headers.authorization || '';
   const [scheme, token] = header.split(' ');
 
@@ -19,5 +19,3 @@ function auth(req, res, next) {
     return res.status(401).json({ message: 'Token invalido ou expirado' });
   }
 }
-
-module.exports = auth;

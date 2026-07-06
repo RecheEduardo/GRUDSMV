@@ -1,4 +1,4 @@
-const { createRepository } = require('./baseRepository');
+import { createRepository } from './baseRepository.js';
 
 // Repositorio de artigos sobre a colecao "articles" do store JSON.
 const repo = createRepository('articles');
@@ -11,4 +11,4 @@ function findByStatus(status) {
   return repo.findBy((article) => article.status === status);
 }
 
-module.exports = { ...repo, findByAuthor, findByStatus };
+export default { ...repo, findByAuthor, findByStatus };

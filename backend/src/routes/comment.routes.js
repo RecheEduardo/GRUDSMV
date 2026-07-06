@@ -1,13 +1,13 @@
-const { Router } = require('express');
+import { Router } from 'express';
 
-const {
+import {
   listTop,
   remove,
   like,
   unlike,
   report,
-} = require('../controllers/comment.controller');
-const auth = require('../middlewares/auth');
+} from '../controllers/comment.controller.js';
+import auth from '../middlewares/auth.js';
 
 const router = Router();
 
@@ -26,4 +26,4 @@ router.delete('/:id/like', auth, unlike);
 // POST /comments/:id/report -> denuncia o comentario (sem duplicar por usuario).
 router.post('/:id/report', auth, report);
 
-module.exports = router;
+export default router;

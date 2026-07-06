@@ -1,6 +1,6 @@
-const { Router } = require('express');
+import { Router } from 'express';
 
-const {
+import {
   create,
   listFeed,
   listPopular,
@@ -13,14 +13,14 @@ const {
   like,
   unlike,
   report,
-} = require('../controllers/article.controller');
-const {
-  create: createComment,
-  list: listComments,
-} = require('../controllers/comment.controller');
-const auth = require('../middlewares/auth');
-const role = require('../middlewares/role');
-const { articleOwnership } = require('../middlewares/ownership');
+} from '../controllers/article.controller.js';
+import {
+  create as createComment,
+  list as listComments,
+} from '../controllers/comment.controller.js';
+import auth from '../middlewares/auth.js';
+import role from '../middlewares/role.js';
+import { articleOwnership } from '../middlewares/ownership.js';
 
 const router = Router();
 
@@ -66,4 +66,4 @@ router.put('/:id', auth, articleOwnership, update);
 // DELETE /articles/:id -> exclui o proprio artigo (somente DRAFT/REVIEW).
 router.delete('/:id', auth, articleOwnership, remove);
 
-module.exports = router;
+export default router;

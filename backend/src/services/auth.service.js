@@ -1,9 +1,9 @@
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
-const config = require('../config');
-const userRepository = require('../repositories/userRepository');
-const { ROLES, toPublicUser } = require('../models/user.model');
+import config from '../config/index.js';
+import userRepository from '../repositories/userRepository.js';
+import { ROLES, toPublicUser } from '../models/user.model.js';
 
 // Erro de dominio com status HTTP associado (tratado pelo errorHandler).
 function httpError(status, message) {
@@ -12,7 +12,7 @@ function httpError(status, message) {
   return err;
 }
 
-async function register({ username, email, password }) {
+export async function register({ username, email, password }) {
   if (!username || !email || !password) {
     throw httpError(400, 'username, email e senha sao obrigatorios');
   }
@@ -35,7 +35,7 @@ async function register({ username, email, password }) {
   return toPublicUser(user);
 }
 
-async function login({ email, password }) {
+export async function login({ email, password }) {
   const user = userRepository.findByEmail(email);
   // Mensagem generica para nao revelar se o email existe.
   if (!user) throw httpError(401, 'Credenciais invalidas');
@@ -52,10 +52,10 @@ async function login({ email, password }) {
   return { token, user: toPublicUser(user) };
 }
 
-function getProfile(id) {
+export function getProfile(id) {
   const user = userRepository.findById(id);
   if (!user) throw httpError(404, 'Usuario nao encontrado');
   return toPublicUser(user);
 }
 
-module.exports = { register, login, getProfile };
+export default { register, login, getProfile };
