@@ -1,13 +1,19 @@
 import axios from 'axios';
 import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 
 // Porta do backend (ver /backend/.env.example).
 const BACKEND_PORT = 3000;
 
 // Descobre o host da maquina de desenvolvimento.
+// Na web, o backend esta em "localhost" do proprio navegador.
 // Em Expo Go (device fisico), o backend nao esta em "localhost" do celular,
 // entao reaproveitamos o host do proprio bundler (hostUri) para acha-lo na LAN.
 function resolveBaseUrl() {
+  if (Platform.OS === 'web') {
+    return `http://${window.location.hostname}:${BACKEND_PORT}`;
+  }
+
   const hostUri =
     Constants.expoConfig?.hostUri ||
     Constants.expoGoConfig?.debuggerHost ||
