@@ -18,4 +18,13 @@ async function login(req, res, next) {
   }
 }
 
-module.exports = { register, login };
+async function me(req, res, next) {
+  try {
+    const user = authService.getProfile(req.auth.id);
+    res.status(200).json({ user });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { register, login, me };

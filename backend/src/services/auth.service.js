@@ -52,4 +52,10 @@ async function login({ email, password }) {
   return { token, user: toPublicUser(user) };
 }
 
-module.exports = { register, login };
+function getProfile(id) {
+  const user = userRepository.findById(id);
+  if (!user) throw httpError(404, 'Usuario nao encontrado');
+  return toPublicUser(user);
+}
+
+module.exports = { register, login, getProfile };

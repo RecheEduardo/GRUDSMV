@@ -27,4 +27,19 @@ const api = axios.create({
   timeout: 10000,
 });
 
+// Token de autenticacao atual, definido pelo AuthContext.
+let authToken = null;
+
+export function setAuthToken(token) {
+  authToken = token;
+}
+
+// Interceptor: injeta "Authorization: Bearer <token>" em toda requisicao.
+api.interceptors.request.use((config) => {
+  if (authToken) {
+    config.headers.Authorization = `Bearer ${authToken}`;
+  }
+  return config;
+});
+
 export default api;

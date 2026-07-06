@@ -1,0 +1,16 @@
+import * as SecureStore from 'expo-secure-store';
+
+// Persistencia segura do token de autenticacao no dispositivo.
+const TOKEN_KEY = 'grudsmv.token';
+
+export async function saveToken(token) {
+  await SecureStore.setItemAsync(TOKEN_KEY, token);
+}
+
+export async function getToken() {
+  return SecureStore.getItemAsync(TOKEN_KEY);
+}
+
+export async function clearToken() {
+  await SecureStore.deleteItemAsync(TOKEN_KEY);
+}
