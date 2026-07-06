@@ -66,3 +66,9 @@ export async function rejectArticle(id) {
   const { data } = await api.patch(`/articles/${id}/reject`);
   return data.article;
 }
+
+// Estatisticas (ADMIN): artigos publicados, curtidas e comentarios por usuario.
+export async function getAdminStats() {
+  const { data } = await api.get('/admin/stats');
+  return data.stats;
+}

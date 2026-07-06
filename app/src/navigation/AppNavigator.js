@@ -11,6 +11,7 @@ import LoginScreen from '../screens/LoginScreen';
 import ModerationScreen from '../screens/ModerationScreen';
 import MyArticlesScreen from '../screens/MyArticlesScreen';
 import RegisterScreen from '../screens/RegisterScreen';
+import StatsScreen from '../screens/StatsScreen';
 
 // Stack principal. Enquanto nao houver usuario autenticado, mostra o fluxo
 // de Login/Cadastro; apos autenticar, mostra as telas logadas.
@@ -69,6 +70,13 @@ export default function AppNavigator() {
               name="Moderation"
               component={ModerationScreen}
               options={{ title: 'Moderacao' }}
+            />
+          )}
+          {isAdmin && (
+            <Stack.Screen
+              name="Stats"
+              component={StatsScreen}
+              options={{ title: 'Estatisticas' }}
             />
           )}
         </>

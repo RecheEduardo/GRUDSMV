@@ -56,6 +56,15 @@ export default function HomeScreen({ navigation }) {
         </View>
       )}
 
+      {isAdmin && (
+        <View style={styles.action}>
+          <Button
+            title="Estatisticas"
+            onPress={() => navigation.navigate('Stats')}
+          />
+        </View>
+      )}
+
       <View style={styles.action}>
         <Button title="Verificar backend (/health)" onPress={checkHealth} />
       </View>
