@@ -75,4 +75,46 @@ function removeOwn(commentId, userId) {
   return comment;
 }
 
-module.exports = { create, listByArticle, removeOwn };
+// Registra a curtida de um usuario no comentario (idempotente: nao duplica).
+function like(commentId, userId) {
+  const comment = commentRepository.findById(commentId);
+  if (!comment) throw httpError(404, 'Comentario nao encontrado');
+
+  const likes = Array.isArray(comment.likes) ? comment.likes : [];
+  if (likes.includes(userId)) return withAuthor(comment);
+
+  return withAuthor(
+    commentRepository.update(commentId, { likes: [...likes, userId] }),
+  );
+}
+
+// Remove a curtida de um usuario no comentario (idempotente).
+function unlike(commentId, userId) {
+  const comment = commentRepository.findById(commentId);
+  if (!comment) throw httpError(404, 'Comentario nao encontrado');
+
+  const likes = Array.isArray(comment.likes) ? comment.likes : [];
+  if (!likes.includes(userId)) return withAuthor(comment);
+
+  return withAuthor(
+    commentRepository.update(commentId, {
+      likes: likes.filter((id) => id !== userId),
+    }),
+  );
+}
+
+// Registra a denuncia de um usuario no comentario (idempotente: nao conta
+// duas vezes o mesmo usuario).
+function report(commentId, userId) {
+  const comment = commentRepository.findById(commentId);
+  if (!comment) throw httpError(404, 'Comentario nao encontrado');
+
+  const reports = Array.isArray(comment.reports) ? comment.reports : [];
+  if (reports.includes(userId)) return withAuthor(comment);
+
+  return withAuthor(
+    commentRepository.update(commentId, { reports: [...reports, userId] }),
+  );
+}
+
+module.exports = { create, listByArticle, removeOwn, like, unlike, report };

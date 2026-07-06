@@ -81,8 +81,8 @@ export default function FeedScreen({ navigation }) {
           {item.content}
         </Text>
         <View style={styles.cardFooter}>
-          <LikeButton article={item} />
-          <ReportButton article={item} />
+          <LikeButton entity={item} />
+          <ReportButton entity={item} />
         </View>
       </Pressable>
     );

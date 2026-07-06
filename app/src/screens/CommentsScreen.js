@@ -13,6 +13,8 @@ import {
   View,
 } from 'react-native';
 
+import LikeButton from '../components/LikeButton';
+import ReportButton from '../components/ReportButton';
 import { useAuth } from '../context/AuthContext';
 import { useComments } from '../hooks/useComments';
 
@@ -82,6 +84,10 @@ export default function CommentsScreen({ route }) {
           )}
         </View>
         <Text style={styles.text}>{item.text}</Text>
+        <View style={styles.commentFooter}>
+          <LikeButton entity={item} type="comment" />
+          <ReportButton entity={item} type="comment" />
+        </View>
       </View>
     );
   }
@@ -170,6 +176,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#444',
     lineHeight: 21,
+  },
+  commentFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 10,
   },
   centered: {
     marginTop: 40,

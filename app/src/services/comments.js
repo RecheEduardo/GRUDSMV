@@ -21,3 +21,21 @@ export async function createComment(articleId, text) {
 export async function deleteComment(id) {
   await api.delete(`/comments/${id}`);
 }
+
+// Curte um comentario (sem duplicar por usuario).
+export async function likeComment(id) {
+  const { data } = await api.post(`/comments/${id}/like`);
+  return data.comment;
+}
+
+// Remove a curtida do usuario no comentario.
+export async function unlikeComment(id) {
+  const { data } = await api.delete(`/comments/${id}/like`);
+  return data.comment;
+}
+
+// Denuncia um comentario (sem duplicar por usuario).
+export async function reportComment(id) {
+  const { data } = await api.post(`/comments/${id}/report`);
+  return data; // { reported, reports }
+}

@@ -2,11 +2,11 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { useLikes } from '../hooks/useLikes';
 
-// Botao de curtida reutilizavel (feed e detalhe). Usa useLikes para o
-// estado otimista. Para de propagar o toque para nao abrir o detalhe ao
+// Botao de curtida reutilizavel para artigos e comentarios. Usa useLikes para
+// o estado otimista. Para de propagar o toque para nao abrir o detalhe ao
 // curtir dentro de um card clicavel.
-export default function LikeButton({ article }) {
-  const { liked, count, pending, toggle } = useLikes(article);
+export default function LikeButton({ entity, type = 'article' }) {
+  const { liked, count, pending, toggle } = useLikes(entity, type);
 
   function handlePress(e) {
     e?.stopPropagation?.();

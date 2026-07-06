@@ -30,4 +30,34 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { create, list, remove };
+// Curte o comentario (o autor da curtida e o usuario autenticado).
+async function like(req, res, next) {
+  try {
+    const comment = commentService.like(req.params.id, req.auth.id);
+    res.status(200).json({ comment });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Remove a curtida do usuario autenticado no comentario.
+async function unlike(req, res, next) {
+  try {
+    const comment = commentService.unlike(req.params.id, req.auth.id);
+    res.status(200).json({ comment });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Denuncia o comentario. Nao expoe quem denunciou, apenas a contagem.
+async function report(req, res, next) {
+  try {
+    const comment = commentService.report(req.params.id, req.auth.id);
+    res.status(200).json({ reported: true, reports: comment.reports.length });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { create, list, remove, like, unlike, report };

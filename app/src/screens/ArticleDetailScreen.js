@@ -20,8 +20,8 @@ export default function ArticleDetailScreen({ navigation, route }) {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>{article.title}</Text>
       <View style={styles.meta}>
-        <LikeButton article={article} />
-        <ReportButton article={article} />
+        <LikeButton entity={article} />
+        <ReportButton entity={article} />
       </View>
 
       {Array.isArray(article.tags) && article.tags.length > 0 && (

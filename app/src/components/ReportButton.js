@@ -2,16 +2,17 @@ import { Alert, Pressable, StyleSheet, Text } from 'react-native';
 
 import { useReports } from '../hooks/useReports';
 
-// Botao "Denunciar" reutilizavel (feed e detalhe). Usa useReports para o
-// feedback visual. Faz stopPropagation para nao abrir o detalhe ao denunciar
-// dentro de um card clicavel, e confirma antes de enviar.
-export default function ReportButton({ article }) {
-  const { reported, pending, report } = useReports(article);
+// Botao "Denunciar" reutilizavel para artigos e comentarios. Usa useReports
+// para o feedback visual. Faz stopPropagation para nao abrir o detalhe ao
+// denunciar dentro de um card clicavel, e confirma antes de enviar.
+export default function ReportButton({ entity, type = 'article' }) {
+  const { reported, pending, report } = useReports(entity, type);
+  const label = type === 'comment' ? 'comentario' : 'artigo';
 
   function handlePress(e) {
     e?.stopPropagation?.();
     if (reported || pending) return;
-    Alert.alert('Denunciar', 'Deseja denunciar este artigo?', [
+    Alert.alert('Denunciar', `Deseja denunciar este ${label}?`, [
       { text: 'Cancelar', style: 'cancel' },
       {
         text: 'Denunciar',
@@ -24,7 +25,7 @@ export default function ReportButton({ article }) {
             Alert.alert(
               'Erro',
               err.response?.data?.message ||
-                'Nao foi possivel denunciar o artigo.',
+                `Nao foi possivel denunciar o ${label}.`,
             );
           }
         },
